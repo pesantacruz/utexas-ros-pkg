@@ -102,7 +102,7 @@ void displayCloud(pcl_visualization::PCLVisualizer &visualizer, pcl::PointCloud<
 
   //Filter to remove NaN points
   pcl::PointIndices inliers;
-  for (int i = 0; i < cloudToDisplay.points.size(); i++) {
+  for (unsigned int i = 0; i < cloudToDisplay.points.size(); i++) {
     pcl::PointXYZRGB *pt = &cloud.points[i];
     if (pcl_isfinite(pt->x))
       inliers.indices.push_back(i);
@@ -183,10 +183,9 @@ void displayStatus(const std::string &status) {
 
 void collectRayInfo(int x, int y) {
   cv::Point2d origPt(x, y), rectPt;
-  model.rectifyPoint(origPt, rectPt);
+  rectPt = model.rectifyPoint(origPt);
   std::cout << origPt << std::endl << rectPt;
-  cv::Point3d ray;
-  model.projectPixelTo3dRay(rectPt, ray);
+  cv::Point3d ray = model.projectPixelTo3dRay(rectPt);
   rayPt1 = Eigen::Vector3f(0,0,0);
   rayPt2 = Eigen::Vector3f(ray.x, ray.y, ray.z);
 }
@@ -260,7 +259,7 @@ void imageMouseCallback(int event, int x, int y, int flags, void* param) {
 
 void imageCallback(const sensor_msgs::ImageConstPtr& image,
     const sensor_msgs::CameraInfoConstPtr& camInfo) {
-  ROS_DEBUG("Image received height %i, width %i", model.height(), model.width());
+  ROS_DEBUG("Image received height %i, width %i", image->height, image->width);
   mImage.lock();
   rgbImage = bridge.imgMsgToCv(image, "bgr8");
   model.fromCameraInfo(camInfo);
