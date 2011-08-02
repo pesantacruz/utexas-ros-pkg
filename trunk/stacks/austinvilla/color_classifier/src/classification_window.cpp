@@ -74,7 +74,7 @@ namespace color_classifier {
           for (int r = max((int)rgb.r - sen * 5, 0); r <=min((int)rgb.r + sen * 5, 255); r+=2) {
             for (int g = max((int)rgb.g - sen * 5, 0); g <=min((int)rgb.g + sen * 5, 255); g+=2) {
               for (int b = max((int)rgb.b - sen * 5, 0); b <=min((int)rgb.b + sen * 5, 255); b+=2) {
-                tempColorTable[r/2][g/2][b/2] = (tempColorTable[r/2][g/2][b/2] == currentColor) ? UNDEFINED : tempColorTable[r/2][g/2][b/2];
+                tempColorTable[r/2][g/2][b/2] = (tempColorTable[r/2][g/2][b/2] == currentColor) ? (uint8_t)UNDEFINED : tempColorTable[r/2][g/2][b/2];
               }
             }
           }
