@@ -27,6 +27,8 @@
 #define COLLECT_GROUND_POINTS 0
 #define GET_GROUND_POINT_INFO 1
 
+#define TRANSITION_TO_LANDMARK_COLLECTION 3
+
 #define COLLECT_LANDMARKS 5
 #define GET_LANDMARK_INFO 6
 
@@ -84,6 +86,8 @@ namespace {
 
   std::string calibFile = "data/calib.txt";
 
+  std::string status;
+
 }
 
 inline std::string getUniqueName(const std::string &baseName, int uniqueId) {
@@ -113,6 +117,8 @@ void displayCloud(pcl_visualization::PCLVisualizer &visualizer, pcl::PointCloud<
   extract.setIndices(boost::make_shared<pcl::PointIndices>(inliers));
   extract.setNegative(false);
   extract.filter(displayCloud);
+
+  /* Filter code Ends */
 
   visualizer.removePointCloud();
   colorHandler.reset (new pcl_visualization::PointCloudColorHandlerRGBField<pcl::PointXYZRGB> (displayCloud));
@@ -157,7 +163,6 @@ void calculateGroundPlane() {
 
   float curvature;
   normalEstimator.computePointNormal(groundPlaneCloud, inliers.indices, groundPlaneParameters, curvature);
-  //std::cout << "Ground Plane Parameters: " << std::endl << groundPlaneParameters << std::endl;
 }
 
 Eigen::Vector3f getPointFromGroundPlane() {
@@ -174,17 +179,21 @@ Eigen::Vector3f getPointFromGroundPlane() {
   return point;
 }
 
-void displayStatus(const std::string &status) {
-  //ROS_INFO(status.c_str());
-  std::cout << status << endl;
-  visualizerPtr->removeShape("status");
-  visualizerPtr->addText(status,320,0,"status");
+void displayStatus(const char* format, ...) {
+
+  char buffer[1024];
+  va_list args;
+  va_start(args, format);
+  vsprintf(buffer, format, args);
+  va_end(args);
+
+  status = std::string(buffer);
+  ROS_INFO(buffer);
 }
 
 void collectRayInfo(int x, int y) {
   cv::Point2d origPt(x, y), rectPt;
   rectPt = model.rectifyPoint(origPt);
-  std::cout << origPt << std::endl << rectPt;
   cv::Point3d ray = model.projectPixelTo3dRay(rectPt);
   rayPt1 = Eigen::Vector3f(0,0,0);
   rayPt2 = Eigen::Vector3f(ray.x, ray.y, ray.z);
@@ -202,6 +211,16 @@ void imageMouseCallback(int event, int x, int y, int flags, void* param) {
           state = GET_GROUND_POINT_INFO;
           break;
         }
+        case TRANSITION_TO_LANDMARK_COLLECTION: {
+          numGroundPoints = 0;
+          state = COLLECT_LANDMARKS;
+          fieldProvider.get2dField(selectorImage, currentLandmark);
+          cvNamedWindow("Selector");
+          cvMoveWindow("Selector", 10, 700);
+          cvShowImage("Selector", selectorImage);
+          displayStatus("Select Landmark (%i of %i) (LClick), Next(RClick), Prev(Ctrl+RClick)", currentLandmark+1, ground_truth::NUM_GROUND_PLANE_POINTS);
+          break;
+        }
         case COLLECT_LANDMARKS: {
           if (flags & CV_EVENT_FLAG_CTRLKEY) {    // Deselect Landmark (ctrl + lclick)
             landmarkAvailable[currentLandmark] = false;
@@ -214,17 +233,20 @@ void imageMouseCallback(int event, int x, int y, int flags, void* param) {
         }
       }
 
-      break; // outer
+      break; 
     }
 
     case CV_EVENT_RBUTTONDOWN: {
 
       switch(state) {
+        case TRANSITION_TO_LANDMARK_COLLECTION:
         case COLLECT_GROUND_POINTS: {
           numGroundPoints--;
-          char s[100];
-          sprintf(s, "Select Ground Point (%i of %i)", numGroundPoints+1, MAX_GROUND_POINTS);
-          displayStatus(s);
+          if (numGroundPoints == 0) {
+            displayStatus("Select Ground Point (%i of %i)", numGroundPoints+1, MAX_GROUND_POINTS);
+          } else {
+            displayStatus("Select Ground Point (%i of %i) (LClick), Deselect (RClick)", numGroundPoints+1, MAX_GROUND_POINTS);
+          }
           break;
         }
         case COLLECT_LANDMARKS: {
@@ -233,7 +255,7 @@ void imageMouseCallback(int event, int x, int y, int flags, void* param) {
             currentLandmark = (currentLandmark < 0) ? 0 : currentLandmark;
             fieldProvider.get2dField(selectorImage, currentLandmark);
             cvShowImage("Selector", selectorImage);
-            ROS_INFO("Select Landmark (%i of %i)", currentLandmark+1, ground_truth::NUM_GROUND_PLANE_POINTS);
+            displayStatus("Select Landmark (%i of %i) (LClick), Next(RClick), Prev(Ctrl+RClick)", currentLandmark+1, ground_truth::NUM_GROUND_PLANE_POINTS);
           } else {                                // Go to next landmark (rclick)
             currentLandmark++;
             if (currentLandmark == ground_truth::NUM_GROUND_PLANE_POINTS) {
@@ -242,7 +264,7 @@ void imageMouseCallback(int event, int x, int y, int flags, void* param) {
             } else {
               fieldProvider.get2dField(selectorImage, currentLandmark);
               cvShowImage("Selector", selectorImage);
-              ROS_INFO("Select Landmark (%i of %i)", currentLandmark+1, ground_truth::NUM_GROUND_PLANE_POINTS);
+              displayStatus("Select Landmark (%i of %i) (LClick), Next(RClick), Prev(Ctrl+RClick)", currentLandmark+1, ground_truth::NUM_GROUND_PLANE_POINTS);
             }
           }
           break;
@@ -337,21 +359,16 @@ int main (int argc, char** argv) {
   cvSetMouseCallback( "ImageCam", imageMouseCallback);
 
   // Stuff to display the selector
-  cvNamedWindow("Selector");
-  cvMoveWindow("Selector", 10, 700);
   currentLandmark = 0;
   selectorImage = cvCreateImage(cvSize(SELECTOR_IMAGE_WIDTH, SELECTOR_IMAGE_HEIGHT), IPL_DEPTH_8U, 3);
-  fieldProvider.get2dField(selectorImage, currentLandmark);
-  cvShowImage("Selector", selectorImage);
   
-  char s[100];
-  sprintf(s, "Select Ground Point (%i of %i)", numGroundPoints+1, MAX_GROUND_POINTS);
-  displayStatus(s);
+  displayStatus("Select Ground Point (%i of %i) (LClick)", numGroundPoints+1, MAX_GROUND_POINTS);
 
-  while (nh.ok ()) {
+  while (nh.ok()) {
+
     // Spin
     ros::spinOnce ();
-    ros::Duration (0.001).sleep ();
+    ros::Duration (0.001).sleep();
     visualizer.spinOnce (10);
 
     // If no cloud received yet, continue
@@ -371,13 +388,10 @@ int main (int argc, char** argv) {
         numGroundPoints++;
         if (numGroundPoints == MAX_GROUND_POINTS) {
           calculateGroundPlane();
-          ROS_INFO("Select Landmark (%i of %i)", currentLandmark+1, ground_truth::NUM_GROUND_PLANE_POINTS);
-          state = COLLECT_LANDMARKS;
-          numGroundPoints = 0;
+          displayStatus("LClick to Select Landmarks", currentLandmark+1, ground_truth::NUM_GROUND_PLANE_POINTS);
+          state = TRANSITION_TO_LANDMARK_COLLECTION;
         } else {
-          char s[100];
-          sprintf(s, "Select Ground Point (%i of %i)", numGroundPoints+1, MAX_GROUND_POINTS);
-          displayStatus(s);
+          displayStatus("Select Ground Point (%i of %i) (LClick), Deselect (RClick)", numGroundPoints+1, MAX_GROUND_POINTS);
           state = COLLECT_GROUND_POINTS; 
         }
         break;
@@ -385,10 +399,9 @@ int main (int argc, char** argv) {
 
       case GET_LANDMARK_INFO: {
         landmarkPoints[currentLandmark] = getPointFromGroundPlane();
-        //std::cout << "Point Selected: " << std::endl << landmarkPoints[currentLandmark] << std::endl;
         landmarkAvailable[currentLandmark] = true;
         state = COLLECT_LANDMARKS;
-        ROS_INFO("Landmark Info obtained (%i of %i)", currentLandmark+1, ground_truth::NUM_GROUND_PLANE_POINTS);
+        displayStatus("Landmark Info obtained (%i of %i), Redo(LClick), Deselect(Ctrl+LClick), Next(RClick), Prev(Ctrl+RClick)", currentLandmark+1, ground_truth::NUM_GROUND_PLANE_POINTS);
         newDisplayLandmark = true;
         break;
       }
@@ -415,8 +428,7 @@ int main (int argc, char** argv) {
       }
     }
 
-    // Display spheres durink landmaark
-    // Remove
+    // Display spheres during landmark selection
     if (displayLandmark != currentLandmark || newDisplayLandmark) {
       visualizer.removeShape(getUniqueName("landmark", displayLandmark));
       displayLandmark = currentLandmark;
@@ -429,11 +441,14 @@ int main (int argc, char** argv) {
 
     // Use old pointer to prevent redundant display
     oldCloudPtr = cloudPtr;
-    mCloud.unlock ();
+    mCloud.unlock();
 
     mImage.lock();
     cvShowImage("ImageCam", rgbImage);
     mImage.unlock();
+
+    visualizerPtr->removeShape("status");
+    visualizerPtr->addText(status, 75, 0, "status");
   }
 
   return (0);
