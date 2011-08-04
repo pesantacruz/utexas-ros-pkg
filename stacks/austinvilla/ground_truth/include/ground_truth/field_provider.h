@@ -7,10 +7,10 @@
 
 namespace ground_truth {
 
-  /* Constants defining the positions of various field points */
+  /* constants describing the field */
 
-  const float FIELD_Y = 3.950; 
-  const float FIELD_X = 5.950; 
+  const float FIELD_Y = 3.950;            ///< width of the field
+  const float FIELD_X = 5.950;            ///< length of the field
 
   const float GRASS_Y = 4.725; 
   const float GRASS_X = 6.725; 
