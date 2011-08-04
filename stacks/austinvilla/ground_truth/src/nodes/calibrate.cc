@@ -162,7 +162,7 @@ void calculateGroundPlane() {
   pcl::PointIndices inliers;
   pcl::NormalEstimation<pcl::PointXYZ,pcl::Normal> normalEstimator;
 
-  for (unsigned int i = 0; i < MAX_GROUND_POINTS; i++) {
+  for (int i = 0; i < MAX_GROUND_POINTS; i++) {
     pcl::PointXYZ point;
     point.x = groundPoints[i].x();
     point.y = groundPoints[i].y();
@@ -198,7 +198,7 @@ void displayStatus(const char* format, ...) {
   va_end(args);
 
   status = std::string(buffer);
-  ROS_INFO(buffer);
+  //ROS_INFO(buffer);
 }
 
 void collectRayInfo(int x, int y) {
@@ -244,7 +244,10 @@ void imageMouseCallback(int event, int x, int y, int flags, void* param) {
         }
         case TRANSFORMATION_CALCULATED: {
           stayAlive = false;
+          break;
         }
+        default:
+          break;
       }
 
       break; 
@@ -285,7 +288,8 @@ void imageMouseCallback(int event, int x, int y, int flags, void* param) {
           }
           break;
         }
-
+        default:
+          break;
       }
     
       break; // outer
@@ -424,6 +428,9 @@ int main (int argc, char** argv) {
         newDisplayLandmark = true;
         break;
       }
+
+      default:
+        break;
     }
 
     // Display point cloud
