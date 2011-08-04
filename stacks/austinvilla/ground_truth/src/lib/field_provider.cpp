@@ -1,6 +1,7 @@
-#include <ground_truth/field.h>
 #include <pcl/point_types.h>
 #include <math.h>
+
+#include <ground_truth/field_provider.h>
 
 #define PCL_WHITE 1.0, 1.0, 1.0
 #define PCL_BLUE 0.0, 0.0, 1.0
@@ -16,7 +17,7 @@
 
 namespace ground_truth {
 
-  Field::Field(float x, float y, float z) {
+  FieldProvider::FieldProvider(float x, float y, float z) {
 
     centerField = Eigen::Vector3f(x, y, z);
   
@@ -60,14 +61,14 @@ namespace ground_truth {
 
   }
 
-  void Field::draw2dLine(IplImage* image, const Eigen::Vector3f &ep1, const Eigen::Vector3f &ep2, const CvScalar &color, int width) {
+  void FieldProvider::draw2dLine(IplImage* image, const Eigen::Vector3f &ep1, const Eigen::Vector3f &ep2, const CvScalar &color, int width) {
     cv::Point2d ep2d1, ep2d2;
     convertCoordinates(ep2d1, image->height, image->width, ep1);
     convertCoordinates(ep2d2, image->height, image->width, ep2);
     cvLine(image, ep2d1, ep2d2, color, width);
   }
 
-  void Field::draw2dCenterCircle(IplImage* image, const Eigen::Vector3f &centerPt, const Eigen::Vector3f &circlePt, const CvScalar &color, int width) {
+  void FieldProvider::draw2dCenterCircle(IplImage* image, const Eigen::Vector3f &centerPt, const Eigen::Vector3f &circlePt, const CvScalar &color, int width) {
     cv::Point2d center, circle;
     convertCoordinates(center, image->height, image->width, centerPt);
     convertCoordinates(circle, image->height, image->width, circlePt);
@@ -75,20 +76,20 @@ namespace ground_truth {
     cvCircle(image, center, radius, color, width);
   }
 
-  void Field::draw2dCircle(IplImage * image, const Eigen::Vector3f &pt, int radius, const CvScalar &color, int width) {
+  void FieldProvider::draw2dCircle(IplImage * image, const Eigen::Vector3f &pt, int radius, const CvScalar &color, int width) {
     cv::Point2d pt2d;
     convertCoordinates(pt2d, image->height, image->width, pt);
     cvCircle(image, pt2d, radius, color, width);
   }
 
-  void Field::convertCoordinates(cv::Point2d &pos2d, int height, int width, const Eigen::Vector3f &pos3d) {
+  void FieldProvider::convertCoordinates(cv::Point2d &pos2d, int height, int width, const Eigen::Vector3f &pos3d) {
     float xMul = width / GRASS_X;
     float yMul = height / GRASS_Y;
     pos2d.x = xMul * -(pos3d.x() - centerField.x()) + width / 2;
     pos2d.y = yMul * (pos3d.y() - centerField.y()) + height / 2;
   }
 
-  void Field::get2dField(IplImage* image, int highlightPoint) {
+  void FieldProvider::get2dField(IplImage* image, int highlightPoint) {
 
     cvZero(image);
 
@@ -161,7 +162,7 @@ namespace ground_truth {
     */
   }
 
-  void Field::draw3dLine(pcl_visualization::PCLVisualizer &visualizer, const Eigen::Vector3f &ep1, const Eigen::Vector3f &ep2, double r, double g, double b, const std::string &name) {
+  void FieldProvider::draw3dLine(pcl_visualization::PCLVisualizer &visualizer, const Eigen::Vector3f &ep1, const Eigen::Vector3f &ep2, double r, double g, double b, const std::string &name) {
     pcl::PointXYZ ep3d1(ep1.x(), ep1.y(), ep1.z());
     pcl::PointXYZ ep3d2(ep2.x(), ep2.y(), ep2.z());
     visualizer.addLine<pcl::PointXYZ, pcl::PointXYZ>(ep3d1, ep3d2, r, g, b, "__"+name+"__");
@@ -169,7 +170,7 @@ namespace ground_truth {
     visualizer.addSphere<pcl::PointXYZ>(ep3d2, 0.02, r, g, b, "__"+name+"_pt2"+"__");
   }
 
-  void Field::draw3dCenterCircle(pcl_visualization::PCLVisualizer &visualizer, const Eigen::Vector3f &centerPt, const Eigen::Vector3f &circlePt, double r, double g, double b, const std::string &name) {
+  void FieldProvider::draw3dCenterCircle(pcl_visualization::PCLVisualizer &visualizer, const Eigen::Vector3f &centerPt, const Eigen::Vector3f &circlePt, double r, double g, double b, const std::string &name) {
     if (centerPt.z() == 0) { // Only supported for z = 0
       pcl::ModelCoefficients circleModel;
       circleModel.values.push_back(centerPt.x());
@@ -179,7 +180,7 @@ namespace ground_truth {
     }
   }
 
-  void Field::get3dField(pcl_visualization::PCLVisualizer &visualizer) {
+  void FieldProvider::get3dField(pcl_visualization::PCLVisualizer &visualizer) {
     
     draw3dLine(visualizer, groundPoints[YELLOW_BASE_TOP], groundPoints[YELLOW_BASE_BOTTOM], PCL_WHITE, "yellow_base");
     draw3dLine(visualizer, groundPoints[YELLOW_BASE_PENALTY_TOP], groundPoints[YELLOW_PENALTY_TOP], PCL_WHITE, "yellow_penalty_top");

@@ -24,29 +24,13 @@ set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
 
 #common commands for building c++ executables and libraries
 
-rosbuild_add_library(field src/libfield/field.cpp)
+rosbuild_add_library(field_provider src/lib/field_provider.cpp)
 
-rosbuild_add_executable(detect src/detect.cc)
+rosbuild_add_executable(detect src/nodes/detect.cc)
 link_directories(detect ${PROJECT_NAME}/lib)
-target_link_libraries(detect field)
+target_link_libraries(detect field_provider)
 
-rosbuild_add_executable(calibrate src/calibrate.cc)
+rosbuild_add_executable(calibrate src/nodes/calibrate.cc)
 link_directories(calibrate ${PROJECT_NAME}/lib)
-target_link_libraries(calibrate field)
+target_link_libraries(calibrate field_provider)
 
-#rosbuild_add_executable(detect_bag src/detect_bag.cc)
-#link_directories(detect_bag ${PROJECT_NAME}/lib)
-#target_link_libraries(detect_bag field)
-
-#rosbuild_add_executable(overall src/overall.cc)
-
-#rosbuild_add_executable(displayCorrected src/displayCorrected.cc)
-#link_directories(displayCorrected ${PROJECT_NAME}/lib)
-#target_link_libraries(displayCorrected field_selector)
-#target_link_libraries(displayCorrected cloud_visualizer)
-
-#target_link_libraries(${PROJECT_NAME} another_library)
-#rosbuild_add_boost_directories()
-#rosbuild_link_boost(${PROJECT_NAME} thread)
-#rosbuild_add_executable(example examples/example.cpp)
-#target_link_libraries(example ${PROJECT_NAME})
