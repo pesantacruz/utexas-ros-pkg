@@ -60,6 +60,7 @@ namespace {
   boost::mutex mCloud;
   pcl_visualization::PointCloudColorHandler<pcl::PointXYZRGB>::Ptr colorHandler;
   pcl_visualization::PointCloudGeometryHandler<pcl::PointXYZRGB>::Ptr geometryHandler;
+  ground_truth::FieldProvider fieldProvider;
 
   IplImage* rgbImage;
   boost::mutex mImage;
@@ -71,7 +72,6 @@ namespace {
 
   IplImage * selectorImage;
   pcl::TransformationFromCorrespondences rigidBodyTransform;
-  Eigen::Vector3f pc_point;
 
   int state = COLLECT_GROUND_POINTS;
 
@@ -83,16 +83,11 @@ namespace {
   bool landmarkAvailable[ground_truth::NUM_GROUND_PLANE_POINTS];
   int currentLandmark = 0;
   int displayLandmark = 0;
+  bool newDisplayLandmark;
 
   bool transformationAvailable = false;
   Eigen::Affine3f transformMatrix;
-
   Eigen::Vector4f groundPlaneParameters;
-
-  pcl_visualization::PCLVisualizer *visualizerPtr;
-
-  bool newDisplayLandmark;
-  ground_truth::Field fieldProvider;
 
   std::string calibFile = "data/calib.txt";
 
@@ -113,9 +108,9 @@ void displayCloud(pcl_visualization::PCLVisualizer &visualizer, pcl::PointCloud<
   
   pcl::PointCloud<pcl::PointXYZRGB> displayCloud;
 
-  /* This Filter code is currently there, due to some failure for nan points while displaying */
+  /* This Filter code is currently there due to some failure for nan points while displaying */
 
-  //Filter to remove NaN points
+  // Filter to remove NaN points
   pcl::PointIndices inliers;
   for (unsigned int i = 0; i < cloudToDisplay.points.size(); i++) {
     pcl::PointXYZRGB *pt = &cloud.points[i];
@@ -190,8 +185,6 @@ Eigen::Vector3f getPointFromGroundPlane() {
   return point;
 }
 
-/*
- * Displays 
 void displayStatus(const char* format, ...) {
 
   char buffer[1024];
@@ -369,7 +362,6 @@ int main (int argc, char** argv) {
   // Stuff to display the point cloud properly
   pcl_visualization::PCLVisualizer visualizer (argc, argv, "Online PointCloud2 Viewer");
   visualizer.addCoordinateSystem(); // Good for reference
-  visualizerPtr = &visualizer;
 
   // Stuff to display the rgb image
   cvStartWindowThread();
@@ -472,8 +464,8 @@ int main (int argc, char** argv) {
     cvShowImage("ImageCam", rgbImage);
     mImage.unlock();
 
-    visualizerPtr->removeShape("status");
-    visualizerPtr->addText(status, 75, 0, "status");
+    visualizer.removeShape("status");
+    visualizer.addText(status, 75, 0, "status");
   }
 
   return (0);
