@@ -64,7 +64,7 @@ namespace ground_truth {
     NUM_HIGH_POINTS = 4
   };
 
-  class Field {
+  class FieldProvider {
 
     private:
 
@@ -84,7 +84,7 @@ namespace ground_truth {
 
     public:
 
-      Field(float x = 0.0, float y = 0.0, float z = 0.0);
+      FieldProvider (float x = 0.0, float y = 0.0, float z = 0.0);
       void get2dField(IplImage* image, int highlightPoint = -1);
       void get3dField(pcl_visualization::PCLVisualizer &visualizer);
       inline Eigen::Vector3f getGroundPoint(int index) {

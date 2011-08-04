@@ -30,7 +30,7 @@
 #include <opencv/highgui.h>
 #include <cv_bridge/CvBridge.h>
 
-#include <ground_truth/field.h>
+#include <ground_truth/field_provider.h>
 
 // Different states that the calibrator can be in
 #define COLLECT_GROUND_POINTS 0

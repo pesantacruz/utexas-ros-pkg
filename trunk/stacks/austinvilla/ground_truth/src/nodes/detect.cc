@@ -21,7 +21,7 @@
 // Eigen library  
 #include <Eigen/Core>
 
-#include <ground_truth/field.h>
+#include <ground_truth/field_provider.h>
 
 /* Display modes */
 #define FULL 1
@@ -266,7 +266,7 @@ int main (int argc, char** argv) {
 
   pcl_visualization::PCLVisualizer visualizer(argc, argv, "PointCloud");
   visualizer.addCoordinateSystem(); // Good for reference
-  ground_truth::Field field;
+  ground_truth::FieldProvider field;
   field.get3dField(visualizer);
 
   pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGB>);
