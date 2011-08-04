@@ -1,11 +1,21 @@
-// ROS + core
+/*
+ *  Copyright (C) 2011 University of Texas at Austin
+ * 
+ *  License: Modified BSD Software License Agreement
+ */
+
+/** \file
+    This ROS node calculates the position and orientation of 
+    the kinect sensor in the field coordinate system
+*/
+
 #include <ros/ros.h>
 #include <image_transport/image_transport.h>
 #include <image_geometry/pinhole_camera_model.h>
+
 #include <boost/thread/mutex.hpp>
 #include <boost/lexical_cast.hpp>
 
-// PCL includes
 #include <pcl/point_types.h>
 #include <pcl_visualization/pcl_visualizer.h>
 #include <pcl/common/transformation_from_correspondences.h>
@@ -14,12 +24,11 @@
 #include <pcl/filters/extract_indices.h>
 #include <terminal_tools/parse.h>
 
-// OpenCV + Highgui for image display
+#include <Eigen/Core>
+
 #include <opencv/cv.h>
 #include <opencv/highgui.h>
 #include <cv_bridge/CvBridge.h>
-
-#include <Eigen/Core>
 
 #include <ground_truth/field.h>
 
@@ -32,8 +41,9 @@
 #define COLLECT_LANDMARKS 5
 #define GET_LANDMARK_INFO 6
 
+#define TRANSFORMATION_CALCULATED 8
+
 #define MAX_GROUND_POINTS 5
-#define MAX_GET_INFO_ATTEMPTS 5
 
 #define RGB_IMAGE_WIDTH 640
 #define RGB_IMAGE_HEIGHT 480
@@ -87,6 +97,7 @@ namespace {
   std::string calibFile = "data/calib.txt";
 
   std::string status;
+  bool stayAlive = true;
 
 }
 
@@ -179,6 +190,8 @@ Eigen::Vector3f getPointFromGroundPlane() {
   return point;
 }
 
+/*
+ * Displays 
 void displayStatus(const char* format, ...) {
 
   char buffer[1024];
@@ -211,7 +224,8 @@ void imageMouseCallback(int event, int x, int y, int flags, void* param) {
           state = GET_GROUND_POINT_INFO;
           break;
         }
-        case TRANSITION_TO_LANDMARK_COLLECTION: {
+        case TRANSITION_TO_LANDMARK_COLLECTION: {  // 
+          calculateGroundPlane();
           numGroundPoints = 0;
           state = COLLECT_LANDMARKS;
           fieldProvider.get2dField(selectorImage, currentLandmark);
@@ -224,12 +238,15 @@ void imageMouseCallback(int event, int x, int y, int flags, void* param) {
         case COLLECT_LANDMARKS: {
           if (flags & CV_EVENT_FLAG_CTRLKEY) {    // Deselect Landmark (ctrl + lclick)
             landmarkAvailable[currentLandmark] = false;
-            newDisplayLandmark = false;
+            newDisplayLandmark = true;
           } else {                                // Obtain current landmark (lclick)
             collectRayInfo(x, y);
             state = GET_LANDMARK_INFO;
           }
           break;
+        }
+        case TRANSFORMATION_CALCULATED: {
+          stayAlive = false;
         }
       }
 
@@ -247,6 +264,7 @@ void imageMouseCallback(int event, int x, int y, int flags, void* param) {
           } else {
             displayStatus("Select Ground Point (%i of %i) (LClick), Deselect (RClick)", numGroundPoints+1, MAX_GROUND_POINTS);
           }
+          state = COLLECT_GROUND_POINTS;
           break;
         }
         case COLLECT_LANDMARKS: {
@@ -260,7 +278,8 @@ void imageMouseCallback(int event, int x, int y, int flags, void* param) {
             currentLandmark++;
             if (currentLandmark == ground_truth::NUM_GROUND_PLANE_POINTS) {
               calculateTransformation();
-              currentLandmark = ground_truth::NUM_GROUND_PLANE_POINTS - 1;
+              displayStatus("Transformation calculated and saved. Exit (LClick)");
+              state = TRANSFORMATION_CALCULATED;
             } else {
               fieldProvider.get2dField(selectorImage, currentLandmark);
               cvShowImage("Selector", selectorImage);
@@ -275,8 +294,6 @@ void imageMouseCallback(int event, int x, int y, int flags, void* param) {
       break; // outer
     }
   }
-
-
 }
 
 void imageCallback(const sensor_msgs::ImageConstPtr& image,
@@ -293,7 +310,7 @@ float distanceLineFromPoint(Eigen::Vector3f ep1, Eigen::Vector3f ep2, Eigen::Vec
   return ((point - ep1).cross(point - ep2)).norm() / (ep2 - ep1).norm();
 }
 
-Eigen::Vector3f getPointFromCloud() {
+bool getPointFromCloud(Eigen::Vector3f &point) {
   
   unsigned int count = 0;
   Eigen::Vector3f averagePt(0, 0, 0);
@@ -316,7 +333,10 @@ Eigen::Vector3f getPointFromCloud() {
   }
   averagePt /= count;
 
-  return averagePt;
+  point = averagePt;
+
+  return count > 10;
+
 }
 
 void cloudCallback (const sensor_msgs::PointCloud2ConstPtr& cloudPtrMsg) {
@@ -364,7 +384,7 @@ int main (int argc, char** argv) {
   
   displayStatus("Select Ground Point (%i of %i) (LClick)", numGroundPoints+1, MAX_GROUND_POINTS);
 
-  while (nh.ok()) {
+  while (nh.ok() && stayAlive) {
 
     // Spin
     ros::spinOnce ();
@@ -384,11 +404,15 @@ int main (int argc, char** argv) {
     switch (state) {
 
       case GET_GROUND_POINT_INFO: {
-        groundPoints[numGroundPoints] = getPointFromCloud();
+        bool pointAvailable = getPointFromCloud(groundPoints[numGroundPoints]);
+        if (!pointAvailable) {
+          displayStatus("Unable to get point data. Select Ground Point (%i of %i) (LClick)", numGroundPoints+1, MAX_GROUND_POINTS);
+          state = COLLECT_GROUND_POINTS;
+          break;
+        }
         numGroundPoints++;
         if (numGroundPoints == MAX_GROUND_POINTS) {
-          calculateGroundPlane();
-          displayStatus("LClick to Select Landmarks", currentLandmark+1, ground_truth::NUM_GROUND_PLANE_POINTS);
+          displayStatus("Proceed to Landmark Selection (LClick), Deselect (RClick)", currentLandmark+1, ground_truth::NUM_GROUND_PLANE_POINTS);
           state = TRANSITION_TO_LANDMARK_COLLECTION;
         } else {
           displayStatus("Select Ground Point (%i of %i) (LClick), Deselect (RClick)", numGroundPoints+1, MAX_GROUND_POINTS);
@@ -431,7 +455,8 @@ int main (int argc, char** argv) {
     // Display spheres during landmark selection
     if (displayLandmark != currentLandmark || newDisplayLandmark) {
       visualizer.removeShape(getUniqueName("landmark", displayLandmark));
-      displayLandmark = currentLandmark;
+      if (currentLandmark != ground_truth::NUM_GROUND_PLANE_POINTS)
+        displayLandmark = currentLandmark;
     }
     if (displayLandmark == currentLandmark && landmarkAvailable[displayLandmark] && newDisplayLandmark) {
       pcl::PointXYZ point(landmarkPoints[displayLandmark].x(), landmarkPoints[displayLandmark].y(), landmarkPoints[displayLandmark].z());

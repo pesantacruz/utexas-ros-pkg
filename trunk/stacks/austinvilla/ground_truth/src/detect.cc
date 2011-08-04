@@ -26,6 +26,7 @@
 /* Display modes */
 #define FULL 1
 #define RELEVANT 2
+#define NONE 3
 
 #define RGB_IMAGE_WIDTH 640
 #define RGB_IMAGE_HEIGHT 480
@@ -320,7 +321,6 @@ int main (int argc, char** argv) {
     } else {
 
       cloudDisplay.reset(new pcl::PointCloud<pcl::PointXYZRGB>);
-      log << std::fixed << getSystemTime() << ",";
       // Ball
       std::vector<pcl::PointXYZ> ballPositions;
       detectBall(cloudSwap, ballPositions, cloud);
@@ -330,12 +330,17 @@ int main (int argc, char** argv) {
       for (unsigned int i = 0; i < ballPositions.size(); i++) {
         visualizer.addSphere(ballPositions[i], 0.05, 1.0, 0.4, 0.0, getUniqueName("ball", i));
       }
+      numBallsDisplayed = ballPositions.size();
+
+      /* 
+      //Sample log file code
+      log << std::fixed << getSystemTime() << ",";
       if (ballPositions.size() == 0) {
         log << "-7," << "-7,";
       } else if (ballPositions.size() == 1) {
         log << ballPositions[0].x << "," << ballPositions[0].y << ",";
       }
-      numBallsDisplayed = ballPositions.size();
+      */
 
       // Robots
       std::vector<pcl::PointXYZ> robotPositions;
@@ -347,14 +352,17 @@ int main (int argc, char** argv) {
       for (unsigned int i = 0; i < robotPositions.size(); i++) {
         visualizer.addSphere(robotPositions[i], 0.1, 1.0, 1.0, 1.0, getUniqueName("robot", i));
       }
+      numRobotsDisplayed = robotPositions.size();
+
+      /*
+      //Sample log file code
       if (robotPositions.size() == 0) {
         log << "-7," << "-7,";
       } else if (robotPositions.size() == 1) {
         log << robotPositions[0].x << "," << robotPositions[0].y << ",";
       }
-      numRobotsDisplayed = robotPositions.size();
-
       log << std::endl;
+      */
 
     }
 
