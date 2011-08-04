@@ -1,13 +1,18 @@
-/*
- *  Copyright (C) 2011 University of Texas at Austin
- * 
- *  License: Modified BSD Software License Agreement
+/**
+ * \file  calibrate.cc
+ * \brief Calculates position of the kinect
+ *
+ *  This ROS node calculates the position and orientation of 
+ *  the kinect sensor in the field coordinate system. This information is 
+ *  stored to file and read by the detection system
+ *
+ * \author  Piyush Khandelwal (piyushk), piyushk@cs.utexas.edu
+ * Copyright (C) 2011, The University of Texas at Austin, Piyush Khandelwal
+ *
+ * License: Modified BSD License
+ *
+ * $ Id: 08/04/2011 02:18:43 PM piyushk $
  */
-
-/** \file
-    This ROS node calculates the position and orientation of 
-    the kinect sensor in the field coordinate system
-*/
 
 #include <ros/ros.h>
 #include <image_transport/image_transport.h>
@@ -32,22 +37,6 @@
 
 #include <ground_truth/field_provider.h>
 
-// Different states that the calibrator can be in
-#define COLLECT_GROUND_POINTS 0
-#define GET_GROUND_POINT_INFO 1
-
-#define TRANSITION_TO_LANDMARK_COLLECTION 3
-
-#define COLLECT_LANDMARKS 5
-#define GET_LANDMARK_INFO 6
-
-#define TRANSFORMATION_CALCULATED 8
-
-#define MAX_GROUND_POINTS 5
-
-#define RGB_IMAGE_WIDTH 640
-#define RGB_IMAGE_HEIGHT 480
-
 #define SELECTOR_IMAGE_WIDTH 240
 #define SELECTOR_IMAGE_HEIGHT 180
 
@@ -62,19 +51,17 @@ namespace {
   pcl_visualization::PointCloudGeometryHandler<pcl::PointXYZRGB>::Ptr geometryHandler;
   ground_truth::FieldProvider fieldProvider;
 
-  IplImage* rgbImage;
+  IplImage* rgbImage = NULL;
   boost::mutex mImage;
   sensor_msgs::CvBridge bridge;
   image_geometry::PinholeCameraModel model;
 
   Eigen::Vector3f rayPt1, rayPt2;
-  pcl::PointXYZ sphere;
 
   IplImage * selectorImage;
   pcl::TransformationFromCorrespondences rigidBodyTransform;
 
-  int state = COLLECT_GROUND_POINTS;
-
+  const int MAX_GROUND_POINTS = 5;
   Eigen::Vector3f groundPoints[MAX_GROUND_POINTS];
   int numGroundPoints = 0;
   int displayGroundPoints = 0;
@@ -94,8 +81,25 @@ namespace {
   std::string status;
   bool stayAlive = true;
 
+  enum State {
+    COLLECT_GROUND_POINTS,
+    GET_GROUND_POINT_INFO,
+    TRANSITION_TO_LANDMARK_COLLECTION,
+    COLLECT_LANDMARKS,
+    GET_LANDMARK_INFO,
+    TRANSFORMATION_CALCULATED,
+  };
+
+  State state = COLLECT_GROUND_POINTS;
+
 }
 
+
+/**
+ * @brief   baseName  Helper function
+ * @param   
+ * @return  
+ */
 inline std::string getUniqueName(const std::string &baseName, int uniqueId) {
   return baseName + boost::lexical_cast<std::string>(uniqueId);
 }
@@ -367,7 +371,6 @@ int main (int argc, char** argv) {
   cvStartWindowThread();
   cvNamedWindow("ImageCam");
   cvMoveWindow("ImageCam", 0,0);
-  rgbImage = cvCreateImage(cvSize(RGB_IMAGE_WIDTH, RGB_IMAGE_HEIGHT), IPL_DEPTH_8U, 3);
   cvSetMouseCallback( "ImageCam", imageMouseCallback);
 
   // Stuff to display the selector
@@ -461,7 +464,9 @@ int main (int argc, char** argv) {
     mCloud.unlock();
 
     mImage.lock();
-    cvShowImage("ImageCam", rgbImage);
+    if (rgbImage) {
+      cvShowImage("ImageCam", rgbImage);
+    }
     mImage.unlock();
 
     visualizer.removeShape("status");
