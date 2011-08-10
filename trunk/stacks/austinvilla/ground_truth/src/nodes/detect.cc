@@ -1,11 +1,26 @@
-// ROS + core
+/**
+ * \file  detect.cc
+ * \brief Performs the ground truth detection
+ *
+ * This ROS node detects the ground truth locations of the ball and the robots
+ * on the field. It uses the collected calibration info as well as the color
+ * table
+ *
+ * \author  Piyush Khandelwal (piyushk), piyushk@cs.utexas.edu
+ * Copyright (C) 2011, The University of Texas at Austin, Piyush Khandelwal
+ *
+ * License: Modified BSD License
+ *
+ * $ Id: 08/10/2011 12:48:11 PM piyushk $
+ */
+
 #include <ros/ros.h>
 #include <image_transport/image_transport.h>
 #include <image_geometry/pinhole_camera_model.h>
+
 #include <boost/thread/mutex.hpp>
 #include <boost/lexical_cast.hpp>
 
-// PCL includes
 #include <pcl/point_types.h>
 #include <pcl_visualization/pcl_visualizer.h>
 #include <pcl/registration/transforms.h>
@@ -13,12 +28,6 @@
 #include <pcl/segmentation/extract_clusters.h>
 #include <terminal_tools/parse.h>
 
-// OpenCV + Highgui for display
-#include <opencv/cv.h>
-#include <opencv/highgui.h>
-#include <cv_bridge/CvBridge.h>
-
-// Eigen library  
 #include <Eigen/Core>
 
 #include <ground_truth/field_provider.h>
@@ -75,8 +84,11 @@ namespace {
     return px; 
   }
 
-}
+} 
 
+/**
+ * \brief  Loads color table from file into array 
+ */
 void loadColorTable() {
 
   FILE* f = fopen(colorTableFile.c_str(), "rb");
@@ -93,7 +105,10 @@ void loadColorTable() {
 
 }
 
-double getSystemTime(){
+/**
+ * \brief  Helper function to return time in seconds with micro-second precision 
+ */
+double getSystemTime() {
   // set time
   struct timezone tz;
   timeval timeT;
@@ -101,6 +116,20 @@ double getSystemTime(){
   return timeT.tv_sec + (timeT.tv_usec / 1000000.0);
 }
 
+/**
+ * /brief Helper function for attaching a unique id to a string.
+ * /return the string with the unique identifier
+ */
+inline std::string getUniqueName(const std::string &baseName, int uniqueId) {
+  return baseName + boost::lexical_cast<std::string>(uniqueId);
+}
+
+/**
+ * \brief  Function to detect the ball given the transformed point cloud from the kinect
+ * \param cloudIn The transformed point cloud from the Kinect
+ * \param ballPositions The detected ball positions (can be more than 1)
+ * \param cloudOut The clusters contributing to the detected balls
+ */
 void detectBall(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloudIn, std::vector<pcl::PointXYZ> &ballPositions, pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloudOut) {
 
   pcl::PointIndices inliers;
@@ -150,6 +179,12 @@ void detectBall(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloudIn, std::vector<pcl:
 
 }
 
+/**
+ * \brief  Function to detect robots given the transformed point cloud from the kinect
+ * \param cloudIn The transformed point cloud from the Kinect
+ * \param ballPositions The robot positions
+ * \param cloudOut The clusters contributing to the detected robots
+ */
 void detectRobots(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloudIn, std::vector<pcl::PointXYZ> &robotPositions, pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloudOut) {
 
   pcl::PointIndices inliers;
@@ -201,16 +236,18 @@ void detectRobots(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloudIn, std::vector<pc
 
 }
 
+/**
+ * \brief   Callback function for the point cloud message received from the kinect driver
+ */
 void cloudCallback (const sensor_msgs::PointCloud2ConstPtr& cloudPtrFromMsg) {
   mCloud.lock();
   cloudPtr = cloudPtrFromMsg;
   mCloud.unlock();
 }
 
-inline std::string getUniqueName(const std::string &baseName, int uniqueId) {
-  return baseName + boost::lexical_cast<std::string>(uniqueId);
-}
-
+/**
+ * \brief   Helper function to get parameters from the command line, or a ROS parameter server
+ */
 void getParameters(ros::NodeHandle &nh, int argc, char ** argv) {
 
   qSize = 1;
