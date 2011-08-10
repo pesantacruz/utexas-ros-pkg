@@ -336,11 +336,13 @@ namespace color_classifier {
   }
 
   void ClassificationWindow::ReadSettings() {
-    std::cout << "class window init equivalent" << std::endl;
+    // Do nothing for now
+    //std::cout << "class window init equivalent" << std::endl;
   }
 
   void ClassificationWindow::WriteSettings() {
-    std::cout << "class window fin equivalent" << std::endl;
+    // Do nothing for now
+    //std::cout << "class window fin equivalent" << std::endl;
   }
 
   void ClassificationWindow::closeEvent(QCloseEvent *event) {

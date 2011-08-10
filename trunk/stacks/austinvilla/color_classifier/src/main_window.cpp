@@ -74,17 +74,14 @@ namespace color_classifier {
   }
 
   void MainWindow::ReadSettings() {
-    std::cout << "init equivalent called" << std::endl;
+    //std::cout << "init equivalent called" << std::endl;
     ui.frameSlider->setEnabled(false);
     ui.currentFrameSpin->setEnabled(false);
     ui.numFrameEdit->setText(QString("0"));    
-
-    return;
   }
 
   void MainWindow::WriteSettings() {
-    std::cout << "fin equivalent called" << std::endl;
-    return;
+    //std::cout << "fin equivalent called" << std::endl;
   }
 
   void MainWindow::closeEvent(QCloseEvent *event) {
