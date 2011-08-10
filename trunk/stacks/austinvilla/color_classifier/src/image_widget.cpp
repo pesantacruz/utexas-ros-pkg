@@ -1,5 +1,5 @@
 #include <QtGui>
-#include <color_classifier/ImageWidget.hpp>
+#include <color_classifier/image_widget.hpp>
 #include <iostream>
 
 #define IMAGE_X 640
