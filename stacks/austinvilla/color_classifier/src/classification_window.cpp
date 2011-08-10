@@ -1,7 +1,10 @@
 #include <iostream>
+#include <algorithm>
+
 #include <QtGui>
 #include <QMessageBox>
 #include <QColor>
+
 #include <color_classifier/classification_window.hpp>
 
 namespace color_classifier {
@@ -45,15 +48,6 @@ namespace color_classifier {
   }
 
   ClassificationWindow::~ClassificationWindow() {}
-
-  inline int ClassificationWindow::max(int a, int b) {
-    return (a > b) ? a:b;
-  }
-
-  inline int ClassificationWindow::min(int a, int b) {
-    return (a < b) ? a:b;
-  }
-
   void ClassificationWindow::on_bigImage_clicked(int x, int y, int button) {
     
     switch (button) {
@@ -63,17 +57,17 @@ namespace color_classifier {
         int sen = ui.sensitivityDial->value();
         Rgb rgb = rgbImage[y][x];
         if (clickMode == ADD) {
-          for (int r = max((int)rgb.r - sen * 5, 0); r <=min((int)rgb.r + sen * 5, 255); r+=2) {
-            for (int g = max((int)rgb.g - sen * 5, 0); g <=min((int)rgb.g + sen * 5, 255); g+=2) {
-              for (int b = max((int)rgb.b - sen * 5, 0); b <=min((int)rgb.b + sen * 5, 255); b+=2) {
+          for (int r = std::max((int)rgb.r - sen * 5, 0); r <=std::min((int)rgb.r + sen * 5, 255); r+=2) {
+            for (int g = std::max((int)rgb.g - sen * 5, 0); g <=std::min((int)rgb.g + sen * 5, 255); g+=2) {
+              for (int b = std::max((int)rgb.b - sen * 5, 0); b <=std::min((int)rgb.b + sen * 5, 255); b+=2) {
                 tempColorTable[r/2][g/2][b/2] = currentColor;
               }
             }
           }
         } else {
-          for (int r = max((int)rgb.r - sen * 5, 0); r <=min((int)rgb.r + sen * 5, 255); r+=2) {
-            for (int g = max((int)rgb.g - sen * 5, 0); g <=min((int)rgb.g + sen * 5, 255); g+=2) {
-              for (int b = max((int)rgb.b - sen * 5, 0); b <=min((int)rgb.b + sen * 5, 255); b+=2) {
+          for (int r = std::max((int)rgb.r - sen * 5, 0); r <=std::min((int)rgb.r + sen * 5, 255); r+=2) {
+            for (int g = std::max((int)rgb.g - sen * 5, 0); g <=std::min((int)rgb.g + sen * 5, 255); g+=2) {
+              for (int b = std::max((int)rgb.b - sen * 5, 0); b <=std::min((int)rgb.b + sen * 5, 255); b+=2) {
                 tempColorTable[r/2][g/2][b/2] = (tempColorTable[r/2][g/2][b/2] == currentColor) ? (uint8_t)UNDEFINED : tempColorTable[r/2][g/2][b/2];
               }
             }
@@ -342,7 +336,6 @@ namespace color_classifier {
 
   void ClassificationWindow::WriteSettings() {
     // Do nothing for now
-    //std::cout << "class window fin equivalent" << std::endl;
   }
 
   void ClassificationWindow::closeEvent(QCloseEvent *event) {
