@@ -13,7 +13,7 @@ namespace color_classifier {
 
   ClassificationWindow::ClassificationWindow(QWidget *parent) : QMainWindow(parent) {
     ui.setupUi(this); // Calling this incidentally connects all ui's triggers to on_...() callbacks in this class.
-    ReadSettings();
+    //ReadSettings();
     setWindowIcon(QIcon(":/images/icon.png"));
 
     // Set up segmented colors
@@ -73,7 +73,7 @@ namespace color_classifier {
             }
           }
         }
-        redrawImages(tempColorTable);
+        redrawImages(true);
         break;
       }
 
@@ -154,16 +154,12 @@ namespace color_classifier {
     }
 
     colorTableFilename = fileName.toStdString();
-    FILE* f = fopen(colorTableFilename.c_str(), "rb");
-    size_t bytesRead = fread(tempColorTable, 128*128*128, 1, f);
-    fclose(f);
-    if (!bytesRead) {
+
+    bool colorTableRead = openColorTable();
+    if (!colorTableRead) {
       ui.statusBar->showMessage("Error reading color table!!");
-      memcpy(tempColorTable, colorTable, 128*128*128);
       return;
     }
-
-    memcpy(colorTable, tempColorTable, 128*128*128);
 
     ui.statusBar->showMessage("Color table read successfully!");
     redrawImages();
@@ -329,18 +325,17 @@ namespace color_classifier {
 
   }
 
-  void ClassificationWindow::ReadSettings() {
-    // Do nothing for now
-    //std::cout << "class window init equivalent" << std::endl;
-  }
-
-  void ClassificationWindow::WriteSettings() {
-    // Do nothing for now
-  }
-
   void ClassificationWindow::closeEvent(QCloseEvent *event) {
-    WriteSettings();
+    //WriteSettings();
     event->accept();
   }
 
-}  // namespace colorHandler
+  bool ClassificationWindow::openColorTable() {
+    FILE* f = fopen(colorTableFilename.c_str(), "rb");
+    size_t bytesRead = fread(tempColorTable, 128*128*128, 1, f);
+    fclose(f);
+    memcpy(colorTable, tempColorTable, 128*128*128);
+    return bytesRead;
+  }
+
+}  // namespace color_classifier
