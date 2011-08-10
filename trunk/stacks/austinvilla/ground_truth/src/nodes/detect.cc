@@ -30,6 +30,7 @@
 
 #include <Eigen/Core>
 
+#include <color_classifier/common.h>
 #include <ground_truth/field_provider.h>
 
 /* Display modes */
@@ -41,6 +42,7 @@
 #define RGB_IMAGE_HEIGHT 480
 
 using terminal_tools::parse_argument;
+using namespace color_classifier;
 
 namespace {
   sensor_msgs::PointCloud2ConstPtr cloudPtr, oldCloudPtr;
@@ -59,30 +61,7 @@ namespace {
 
   unsigned int numRobotsDisplayed = 0;
   unsigned int numBallsDisplayed = 0;
-  unsigned char colorTable[128][128][128];
-
-  typedef struct{
-    unsigned char b,g,r;
-  } RgbPixel;
-
-  enum Color {
-    UNDEFINED,
-    ORANGE,
-    PINK,
-    BLUE,
-    GREEN,
-    WHITE,
-    YELLOW,
-    NUM_COLORS
-  };
-
-  RgbPixel segColors[NUM_COLORS];
-
-  inline RgbPixel qRgb(unsigned char r, unsigned char g, unsigned char b) {
-    RgbPixel px;
-    px.b = b, px.g = g, px.r = r;
-    return px; 
-  }
+  ColorTable colorTable;
 
 } 
 
@@ -90,19 +69,9 @@ namespace {
  * \brief  Loads color table from file into array 
  */
 void loadColorTable() {
-
   FILE* f = fopen(colorTableFile.c_str(), "rb");
   fread(colorTable, 128*128*128, 1, f);
   fclose(f);
-
-  segColors[UNDEFINED] = qRgb(0,0,0);
-  segColors[ORANGE] = qRgb(255,155,0);
-  segColors[PINK] = qRgb(255,105,180);
-  segColors[BLUE] = qRgb(0,0,255);
-  segColors[GREEN] = qRgb(0,128,0);
-  segColors[WHITE] = qRgb(255,255,255);
-  segColors[YELLOW] = qRgb(255,255,0);
-
 }
 
 /**
