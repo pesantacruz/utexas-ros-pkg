@@ -1148,7 +1148,7 @@
   <customwidget>
    <class>color_classifier::ImageWidget</class>
    <extends>QWidget</extends>
-   <header>../include/color_classifier/ImageWidget.hpp</header>
+   <header>../include/color_classifier/image_widget.hpp</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

@@ -17,7 +17,7 @@
   <rosdep name="qt4"/>
 
   <export>
-    <cpp cflags="-I${prefix}/include">
+    <cpp cflags="-I${prefix}/include"/>
   </export>
 
 </package>
