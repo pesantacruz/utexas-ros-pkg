@@ -33,28 +33,67 @@ namespace color_classifier {
     ADD,
     DELETE
   };
-
+  
+  /**
+   * \class ClassificationWindow
+   * \brief The Classification Window is the user's interface to assign
+   * lookup values for the color table
+   */
   class ClassificationWindow : public QMainWindow {
   Q_OBJECT
 
   public:
+
     ClassificationWindow(QWidget *parent = 0);
     ~ClassificationWindow();
+    
+    /**
+     * \brief   Close function has been overloaded to terminate the entire 
+     *          program if this window is terminated
+     */
+    void closeEvent(QCloseEvent *event);
 
-    void ReadSettings(); // Load up qt program settings at startup
-    void WriteSettings(); // Save qt program settings when closing
-
-    void closeEvent(QCloseEvent *event); // Overloaded function
+    /**
+     * \brief  Get an updated image from the main window
+     */
     void changeImage(sensor_msgs::ImageConstPtr image);
 
+    /** 
+     * \brief Function to draw an RgbImage onto an ImageWidget screen
+     */
     void drawRgbImage(ImageWidget *widget);
+
+    /** 
+     * \brief Function to draw an RgbImage onto an ImageWidget screen
+     */
     void drawSegImage(ImageWidget *widget);
 
+    /** 
+     * \brief Obtains seg image by segmenting the raw image using specified
+     *        color table
+     */
     void segmentImage(bool useTempColorTable);
+
+    /**
+     * \brief Redraw all the images in the 3 windows
+     */
     void redrawImages(bool useTempColorTable = false);
 
+    /**
+     * \brief Sets currentColor if the user indicates a different color
+     */
     void setColor(int color);
+
+    /**
+     * \brief Update the status bar based on current action
+     */
     void updateStatus();
+
+    /**
+     * \brief Opens the color table specified by colorTableFilename
+     * \return true if opened successfully, false otherwise
+     */
+    bool openColorTable();
 
   public slots:
     void on_bigImage_clicked(int x, int y, int button);
@@ -85,8 +124,8 @@ namespace color_classifier {
 
     RgbImage rgbImage;
     SegImage segImage;
-    ColorTable colorTable;
-    ColorTable tempColorTable;  
+    ColorTable colorTable;                 ///< The actual color table that the user is editing
+    ColorTable tempColorTable;             ///< Temp color table for user to visualize the pixels added before commiting
 
     QRgb segColors[NUM_COLORS];
     std::string segColorNames[NUM_COLORS];
