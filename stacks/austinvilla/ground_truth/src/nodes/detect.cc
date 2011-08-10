@@ -38,9 +38,6 @@
 #define RELEVANT 2
 #define NONE 3
 
-#define RGB_IMAGE_WIDTH 640
-#define RGB_IMAGE_HEIGHT 480
-
 using terminal_tools::parse_argument;
 using namespace color_classifier;
 
@@ -61,8 +58,8 @@ namespace {
 
   unsigned int numRobotsDisplayed = 0;
   unsigned int numBallsDisplayed = 0;
-  ColorTable colorTable;
 
+  ColorTable colorTable;
 } 
 
 /**
