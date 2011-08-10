@@ -1,3 +1,15 @@
+/**
+ * \file  field_provider.cpp
+ * \brief Provides definitions for the FieldProvider header 
+ *
+ * \author  Piyush Khandelwal (piyushk), piyushk@cs.utexas.edu
+ * Copyright (C) 2011, The University of Texas at Austin, Piyush Khandelwal
+ *
+ * License: Modified BSD License
+ *
+ * $ Id: 08/10/2011 11:55:27 AM piyushk $
+ */
+
 #include <pcl/point_types.h>
 #include <math.h>
 
@@ -17,6 +29,9 @@
 
 namespace ground_truth {
 
+  /**
+   * \brief   Constructor with field center coordinates
+   */
   FieldProvider::FieldProvider(float x, float y, float z) {
 
     centerField = Eigen::Vector3f(x, y, z);
@@ -61,6 +76,11 @@ namespace ground_truth {
 
   }
 
+  /* 2D Functions */
+
+  /**
+   * \brief   Draws a line on an IplImage from 3D points using the appropriate scale
+   */
   void FieldProvider::draw2dLine(IplImage* image, const Eigen::Vector3f &ep1, const Eigen::Vector3f &ep2, const CvScalar &color, int width) {
     cv::Point2d ep2d1, ep2d2;
     convertCoordinates(ep2d1, image->height, image->width, ep1);
@@ -68,6 +88,9 @@ namespace ground_truth {
     cvLine(image, ep2d1, ep2d2, color, width);
   }
 
+  /**
+   * \brief   Draws a dot (small circle) on an IplImage from 3D points using the appropriate scale
+   */
   void FieldProvider::draw2dCenterCircle(IplImage* image, const Eigen::Vector3f &centerPt, const Eigen::Vector3f &circlePt, const CvScalar &color, int width) {
     cv::Point2d center, circle;
     convertCoordinates(center, image->height, image->width, centerPt);
@@ -76,12 +99,18 @@ namespace ground_truth {
     cvCircle(image, center, radius, color, width);
   }
 
+  /**
+   * \brief   Draws the center circle on an IplImage from 3D points using the appropriate scale
+   */
   void FieldProvider::draw2dCircle(IplImage * image, const Eigen::Vector3f &pt, int radius, const CvScalar &color, int width) {
     cv::Point2d pt2d;
     convertCoordinates(pt2d, image->height, image->width, pt);
     cvCircle(image, pt2d, radius, color, width);
   }
 
+  /**
+   * \brief   Scales the points from 3D locations to the correct pixel on an IplImage
+   */
   void FieldProvider::convertCoordinates(cv::Point2d &pos2d, int height, int width, const Eigen::Vector3f &pos3d) {
     float xMul = width / GRASS_X;
     float yMul = height / GRASS_Y;
@@ -89,6 +118,9 @@ namespace ground_truth {
     pos2d.y = yMul * (pos3d.y() - centerField.y()) + height / 2;
   }
 
+  /**
+   * \brief   Draws out a 2D field to scale on an OpenCV IplImage
+   */
   void FieldProvider::get2dField(IplImage* image, int highlightPoint) {
 
     cvZero(image);
@@ -160,8 +192,14 @@ namespace ground_truth {
       }
     }
     */
+
   }
 
+  /* 3D Functions */
+
+  /**
+   * \brief  Draws a line in 3D space
+   */
   void FieldProvider::draw3dLine(pcl_visualization::PCLVisualizer &visualizer, const Eigen::Vector3f &ep1, const Eigen::Vector3f &ep2, double r, double g, double b, const std::string &name) {
     pcl::PointXYZ ep3d1(ep1.x(), ep1.y(), ep1.z());
     pcl::PointXYZ ep3d2(ep2.x(), ep2.y(), ep2.z());
@@ -170,6 +208,9 @@ namespace ground_truth {
     visualizer.addSphere<pcl::PointXYZ>(ep3d2, 0.02, r, g, b, "__"+name+"_pt2"+"__");
   }
 
+  /**
+   * \brief  Draws the center circle in 3d space
+   */
   void FieldProvider::draw3dCenterCircle(pcl_visualization::PCLVisualizer &visualizer, const Eigen::Vector3f &centerPt, const Eigen::Vector3f &circlePt, double r, double g, double b, const std::string &name) {
     if (centerPt.z() == 0) { // Only supported for z = 0
       pcl::ModelCoefficients circleModel;
@@ -180,6 +221,9 @@ namespace ground_truth {
     }
   }
 
+  /**
+   * \brief   Draws out a 3d field to scale in a PCLVisualizer Window
+   */
   void FieldProvider::get3dField(pcl_visualization::PCLVisualizer &visualizer) {
     
     draw3dLine(visualizer, groundPoints[YELLOW_BASE_TOP], groundPoints[YELLOW_BASE_BOTTOM], PCL_WHITE, "yellow_base");

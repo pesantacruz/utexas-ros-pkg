@@ -37,9 +37,6 @@
 
 #include <ground_truth/field_provider.h>
 
-#define SELECTOR_IMAGE_WIDTH 240
-#define SELECTOR_IMAGE_HEIGHT 180
-
 using terminal_tools::parse_argument;
 
 namespace {
@@ -57,6 +54,9 @@ namespace {
   image_geometry::PinholeCameraModel model;
 
   Eigen::Vector3f rayPt1, rayPt2;
+
+  const int SELECTOR_IMAGE_WIDTH = 240;
+  const int SELECTOR_IMAGE_HEIGHT = 180;
 
   IplImage * selectorImage;
   pcl::TransformationFromCorrespondences rigidBodyTransform;
@@ -94,20 +94,24 @@ namespace {
 
 }
 
-
 /**
- * @brief   baseName  Helper function
- * @param   
- * @return  
+ * /brief Helper function for attaching a unique id to a string.
+ * /return the string with the unique identifier
  */
 inline std::string getUniqueName(const std::string &baseName, int uniqueId) {
   return baseName + boost::lexical_cast<std::string>(uniqueId);
 }
 
+/**
+ * \brief  Helper function to attach static object to boost::shared_ptr. Used for efficiency 
+ */
 template <typename T>
 void noDelete(T *ptr) {
 }
 
+/**
+ * \brief  Simple function to display the point cloud in the visualizer
+ */
 void displayCloud(pcl_visualization::PCLVisualizer &visualizer, pcl::PointCloud<pcl::PointXYZRGB> &cloudToDisplay) {
   
   pcl::PointCloud<pcl::PointXYZRGB> displayCloud;
@@ -136,6 +140,9 @@ void displayCloud(pcl_visualization::PCLVisualizer &visualizer, pcl::PointCloud<
   visualizer.addPointCloud<pcl::PointXYZRGB>(displayCloud, *colorHandler, *geometryHandler);
 }
 
+/**
+ * \brief  Calculates the transformation (i.e. location of the kinect sensor) based on known positions of landmarks 
+ */
 void calculateTransformation() {
   for (int i = 0; i < ground_truth::NUM_GROUND_PLANE_POINTS; i++) {
     if (landmarkAvailable[i]) {
@@ -157,6 +164,9 @@ void calculateTransformation() {
 
 }
 
+/**
+ * \brief  Calculates the ground plane based on user entered points 
+ */
 void calculateGroundPlane() {
   pcl::PointCloud<pcl::PointXYZ> groundPlaneCloud;
   pcl::PointIndices inliers;
@@ -175,6 +185,10 @@ void calculateGroundPlane() {
   normalEstimator.computePointNormal(groundPlaneCloud, inliers.indices, groundPlaneParameters, curvature);
 }
 
+/**
+ * \brief  Obtains a point by intersecting the ray entered by the user with the ground plane
+ * \return The location of the point in the kinects frame of reference 
+ */
 Eigen::Vector3f getPointFromGroundPlane() {
   
   //Obtain a point and normal for the plane
@@ -189,6 +203,9 @@ Eigen::Vector3f getPointFromGroundPlane() {
   return point;
 }
 
+/**
+ * \brief  Displays the status on the visualizer window
+ */
 void displayStatus(const char* format, ...) {
 
   char buffer[1024];
@@ -199,16 +216,68 @@ void displayStatus(const char* format, ...) {
 
   status = std::string(buffer);
   //ROS_INFO(buffer);
-}
+} 
 
+/**
+ * \brief   Collects information about the ray in the kinect's frame of reference based on pixel indicated by the user
+ */
 void collectRayInfo(int x, int y) {
   cv::Point2d origPt(x, y), rectPt;
   rectPt = model.rectifyPoint(origPt);
   cv::Point3d ray = model.projectPixelTo3dRay(rectPt);
   rayPt1 = Eigen::Vector3f(0,0,0);
   rayPt2 = Eigen::Vector3f(ray.x, ray.y, ray.z);
+} 
+
+/**
+ * \brief   Helper function to calculate the distance of a point from a ray
+ *
+ * This is usefull in obtaining information about a point entered by the user from the point cloud itself
+ */
+float distanceLineFromPoint(Eigen::Vector3f ep1, Eigen::Vector3f ep2, Eigen::Vector3f point) {
+  return ((point - ep1).cross(point - ep2)).norm() / (ep2 - ep1).norm();
+} 
+
+/**
+ * \brief   Returns a point directly sampled from the pointcloud
+ * \param   point A reference to the object through which the sampled value is returned 
+ * \return  true if enough samples were obtained to get a good average, false otherwise
+ */
+bool getPointFromCloud(Eigen::Vector3f &point) {
+  
+  unsigned int count = 0;
+  Eigen::Vector3f averagePt(0, 0, 0);
+
+  for (unsigned int i = 0; i < cloud.points.size(); i++) {
+
+    pcl::PointXYZRGB *pt = &cloud.points[i];
+
+    // Failed Points
+    if (!pcl_isfinite(pt->x))
+      continue;
+
+    // Calculate Distance for valid points
+    Eigen::Vector3f pt2(pt->x, pt->y, pt->z); 
+    float distance = distanceLineFromPoint(rayPt1, rayPt2, pt2);
+    if (distance < 0.025) { // within 2.5 cm of the ray
+      averagePt+= pt2;
+      count++;
+    }
+  }
+  averagePt /= count;
+
+  point = averagePt;
+
+  return count > 10;
+
 }
 
+/**
+ * \brief   The mouse callback on the camera image being displayed by the Kinect.
+ *
+ * Mouse Events are used to collect information about the ground points and landmarks
+ * being indicated by the user.
+ */
 void imageMouseCallback(int event, int x, int y, int flags, void* param) {
 
   switch(event) {
@@ -297,6 +366,9 @@ void imageMouseCallback(int event, int x, int y, int flags, void* param) {
   }
 }
 
+/**
+ * \brief  Callback function for the image message being received from the kinect driver 
+ */
 void imageCallback(const sensor_msgs::ImageConstPtr& image,
     const sensor_msgs::CameraInfoConstPtr& camInfo) {
   ROS_DEBUG("Image received height %i, width %i", image->height, image->width);
@@ -306,40 +378,9 @@ void imageCallback(const sensor_msgs::ImageConstPtr& image,
   mImage.unlock();
 }
 
-/* Distance of a point from a ray */
-float distanceLineFromPoint(Eigen::Vector3f ep1, Eigen::Vector3f ep2, Eigen::Vector3f point) {
-  return ((point - ep1).cross(point - ep2)).norm() / (ep2 - ep1).norm();
-}
-
-bool getPointFromCloud(Eigen::Vector3f &point) {
-  
-  unsigned int count = 0;
-  Eigen::Vector3f averagePt(0, 0, 0);
-
-  for (unsigned int i = 0; i < cloud.points.size(); i++) {
-
-    pcl::PointXYZRGB *pt = &cloud.points[i];
-
-    // Failed Points
-    if (!pcl_isfinite(pt->x))
-      continue;
-
-    // Calculate Distance for valid points
-    Eigen::Vector3f point(pt->x, pt->y, pt->z); 
-    float distance = distanceLineFromPoint(rayPt1, rayPt2, point);
-    if (distance < 0.025) { // within 2.5 cm of the ray
-      averagePt+= point;
-      count++;
-    }
-  }
-  averagePt /= count;
-
-  point = averagePt;
-
-  return count > 10;
-
-}
-
+/**
+ * \brief   Callback function for the point cloud message received from the kinect driver
+ */
 void cloudCallback (const sensor_msgs::PointCloud2ConstPtr& cloudPtrMsg) {
   ROS_DEBUG("PointCloud with %d, %d data points (%s), stamp %f, and frame %s.", cloudPtrMsg->width, cloudPtrMsg->height, pcl::getFieldsList (*cloudPtrMsg).c_str (), cloudPtrMsg->header.stamp.toSec (), cloudPtrMsg->header.frame_id.c_str ()); 
   mCloud.lock();
