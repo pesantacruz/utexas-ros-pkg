@@ -1,7 +1,7 @@
 <package>
   <description brief="color_classifier">
 
-     color_classifier: Simple utility to construct a color lookup table from a ROS bag file.
+     Simple utility to construct a color lookup table from a ROS bag file.
 
   </description>
   <author>Piyush Khandelwal</author>
@@ -15,4 +15,9 @@
   <depend package="opencv2"/>
 
   <rosdep name="qt4"/>
+
+  <export>
+    <cpp cflags="-I${prefix}/include">
+  </export>
+
 </package>
