@@ -146,7 +146,7 @@ namespace color_classifier {
 
   void ClassificationWindow::on_actionOpen_triggered() {
     QString fileName = QFileDialog::getOpenFileName(this, tr("Open Color Table"),
-                                                    "./data/",
+                                                    QString(dataDirectory.c_str()),
                                                     tr("Color Table (*.col)"));
     if (fileName.isNull()) {
       ui.statusBar->showMessage("User cancelled operation");
@@ -186,7 +186,7 @@ namespace color_classifier {
 
   void ClassificationWindow::on_actionSave_As_triggered() {
     QString fileName = QFileDialog::getSaveFileName(this, tr("Save Color Table"),
-                                                    "./data/",
+                                                    QString(dataDirectory.c_str()),
                                                     tr("Color Table (*.col)"));
     if (fileName.isNull()) {
       ui.statusBar->showMessage("User cancelled operation");
@@ -332,10 +332,22 @@ namespace color_classifier {
 
   bool ClassificationWindow::openColorTable() {
     FILE* f = fopen(colorTableFilename.c_str(), "rb");
+    if (!f || ferror(f)) {
+      return false;
+    }
     size_t bytesRead = fread(tempColorTable, 128*128*128, 1, f);
     fclose(f);
     memcpy(colorTable, tempColorTable, 128*128*128);
     return bytesRead;
+  }
+
+  void ClassificationWindow::openDefaultColorTable() {
+    colorTableFilename = dataDirectory + "default.col";
+    openColorTable();
+  }
+
+  void ClassificationWindow::loadDataDirectory(std::string basePath) {
+    dataDirectory = basePath;
   }
 
 }  // namespace color_classifier

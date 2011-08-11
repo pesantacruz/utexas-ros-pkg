@@ -3,6 +3,7 @@
 #include <QMessageBox>
 #include <color_classifier/main_window.hpp>
 
+#include <ros/package.h>
 #include <rosbag/bag.h>
 #include <rosbag/view.h>
 
@@ -16,6 +17,8 @@ namespace color_classifier {
   MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     ui.setupUi(this); // Calling this incidentally connects all ui's triggers to on_...() callbacks in this class.
     ReadSettings();
+    classWindow.loadDataDirectory(getBaseDirectory() + "/data/");
+    classWindow.openDefaultColorTable();
   }
 
   MainWindow::~MainWindow() {}
@@ -25,8 +28,9 @@ namespace color_classifier {
     images.clear();
 
     QString fileName = QFileDialog::getOpenFileName(this, tr("Open Bag"),
-                                                    "./data/",
-                                                    tr("ROS Bag Files (*.bag)"));
+        QString((getBaseDirectory() + "/data/").c_str()),
+        tr("ROS Bag Files (*.bag)"));
+
     if (fileName.isNull()) {
       ui.statusBar->showMessage("User cancelled operation");
       return;
@@ -62,6 +66,13 @@ namespace color_classifier {
 
     ui.statusBar->showMessage(("Bag file with " + boost::lexical_cast<std::string>(images.size()) + " frames").c_str());
     
+  }
+
+  /**
+   * \brief   Helper function to get the base directory of the package, primarily to locate the default color table
+   */
+  std::string MainWindow::getBaseDirectory() {
+    return ros::package::getPath("color_classifier");
   }
 
   void MainWindow::on_currentFrameSpin_valueChanged(int value) {
