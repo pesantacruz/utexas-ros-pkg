@@ -3,6 +3,7 @@
  * \brief Header for the classification window 
  *
  * \author  Piyush Khandelwal (piyushk), piyushk@cs.utexas.edu
+ *          Mohan Sridharan (smohan) and others.
  * Copyright (C) 2011, The University of Texas at Austin, Piyush Khandelwal
  *
  * License: Modified BSD License
