@@ -137,7 +137,7 @@ namespace color_classifier {
     RgbImage rgbImage;
     SegImage segImage;
     ColorTable colorTable;                 ///< The actual color table that the user is editing
-    ColorTable tempColorTable;             ///< Temp color table for user to visualize the pixels added before commiting
+    ColorTable tempColorTable;             ///< Temp color table for user to visualize the pixels once before saving
 
     QRgb segColors[NUM_COLORS];
     std::string segColorNames[NUM_COLORS];

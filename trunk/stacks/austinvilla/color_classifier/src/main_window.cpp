@@ -17,7 +17,7 @@ namespace color_classifier {
 
   MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     ui.setupUi(this); // Calling this incidentally connects all ui's triggers to on_...() callbacks in this class.
-    ReadSettings();
+    initialize();
     classWindow.loadDataDirectory(getBaseDirectory() + "/data/");
     classWindow.openDefaultColorTable();
   }
@@ -85,20 +85,15 @@ namespace color_classifier {
     ui.currentFrameSpin->setValue(value);  //implicitly calls the slot for currentFrameSpin -> value Changed
   }
 
-  void MainWindow::ReadSettings() {
-    //std::cout << "init equivalent called" << std::endl;
+  void MainWindow::initialize() {
     ui.frameSlider->setEnabled(false);
     ui.currentFrameSpin->setEnabled(false);
     ui.numFrameEdit->setText(QString("0"));    
   }
 
-  void MainWindow::WriteSettings() {
-    //std::cout << "fin equivalent called" << std::endl;
-  }
-
   void MainWindow::closeEvent(QCloseEvent *event) {
     classWindow.close();
-    WriteSettings();
+    //WriteSettings();
     event->accept();
   }
 
@@ -107,4 +102,4 @@ namespace color_classifier {
     classWindow.show();
   }
 
-}  // namespace colorHandler
+}  // namespace color_classifier
