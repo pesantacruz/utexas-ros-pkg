@@ -33,8 +33,13 @@ namespace color_classifier {
   Q_OBJECT
 
   public:
+
+    /**
+     * \brief  Constructor that initializes all elements + sets up the data 
+     *         path for the classification window, as well as opens up the
+     *         default color table
+     */
     MainWindow(QWidget *parent = 0);
-    ~MainWindow();
 
     void initialize(); 
 
@@ -56,6 +61,7 @@ namespace color_classifier {
     std::string getBaseDirectory();
 
   public slots:
+
     void on_actionOpen_Bag_triggered();
     void on_currentFrameSpin_valueChanged(int value);
     void on_frameSlider_sliderMoved(int value);

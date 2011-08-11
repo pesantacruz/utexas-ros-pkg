@@ -1,3 +1,18 @@
+/**
+ * \file  image_widget.cpp
+ * \brief  Definitions for the ImageWidget class.
+ *
+ * This class is helpful in handling images in stead of using a window straight up.
+ *
+ * \author  Piyush Khandelwal (piyushk), piyushk@cs.utexas.edu
+ *          Mohan Sridharan (smohan) and others.
+ * Copyright (C) 2011, The University of Texas at Austin, Piyush Khandelwal
+ *
+ * License: Modified BSD License
+ *
+ * $ Id: 08/11/2011 03:47:24 PM piyushk $
+ */
+
 #include <QtGui>
 #include <iostream>
 

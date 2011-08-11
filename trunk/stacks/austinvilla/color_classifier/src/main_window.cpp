@@ -1,3 +1,15 @@
+/**
+ * \file  main_window.cpp
+ * \brief  Provides definitions for the MainWindow class.
+ *
+ * \author  Piyush Khandelwal (piyushk), piyushk@cs.utexas.edu
+ * Copyright (C) 2011, The University of Texas at Austin, Piyush Khandelwal
+ *
+ * License: Modified BSD License
+ *
+ * $ Id: 08/11/2011 03:00:26 PM piyushk $
+ */
+
 #include <iostream>
 #include <QtGui>
 #include <QMessageBox>
@@ -15,14 +27,17 @@ namespace color_classifier {
 
   using namespace Qt;
 
+  /**
+   * \brief  Constructor that initializes all elements + sets up the data 
+   *         path for the classification window, as well as opens up the
+   *         default color table
+   */
   MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     ui.setupUi(this); // Calling this incidentally connects all ui's triggers to on_...() callbacks in this class.
     initialize();
     classWindow.loadDataDirectory(getBaseDirectory() + "/data/");
     classWindow.openDefaultColorTable();
   }
-
-  MainWindow::~MainWindow() {}
 
   void MainWindow::on_actionOpen_Bag_triggered() {
 
@@ -70,7 +85,7 @@ namespace color_classifier {
   }
 
   /**
-   * \brief   Helper function to get the base directory of the package, primarily to locate the default color table
+   * \brief  Gets the path of the package using the ROSPack API  
    */
   std::string MainWindow::getBaseDirectory() {
     return ros::package::getPath("color_classifier");
@@ -91,12 +106,20 @@ namespace color_classifier {
     ui.numFrameEdit->setText(QString("0"));    
   }
 
+  /**
+   * \brief   Close function has been overloaded to terminate the entire 
+   *          program if this window is terminated
+   */
   void MainWindow::closeEvent(QCloseEvent *event) {
     classWindow.close();
     //WriteSettings();
     event->accept();
   }
 
+  /**
+   * \brief  Overloaded function to show the classification window as well 
+   *         at the same time
+   */
   void MainWindow::show() {
     QMainWindow::show();
     classWindow.show();
