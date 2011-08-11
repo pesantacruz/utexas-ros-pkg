@@ -5,7 +5,7 @@
 #include <QMessageBox>
 #include <QColor>
 
-#include <color_classifier/classification_window.hpp>
+#include <color_classifier/classification_window.h>
 
 namespace color_classifier {
 

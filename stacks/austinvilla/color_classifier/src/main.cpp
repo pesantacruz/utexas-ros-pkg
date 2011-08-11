@@ -12,7 +12,8 @@
 
 #include <QtGui>
 #include <QApplication>
-#include <color_classifier/main_window.hpp>
+
+#include <color_classifier/main_window.h>
 
 int main(int argc, char **argv) {
 

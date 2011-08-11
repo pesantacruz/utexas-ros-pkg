@@ -14,6 +14,8 @@
 #ifndef COMMON_29E2EKDP
 #define COMMON_29E2EKDP
 
+#include <stdint.h>
+
 namespace color_classifier {
 
   struct Rgb {

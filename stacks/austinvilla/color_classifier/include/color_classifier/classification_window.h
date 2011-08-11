@@ -1,5 +1,5 @@
 /**
- * \file  classification_window.hpp
+ * \file  classification_window.h
  * \brief Header for the classification window 
  *
  * \author  Piyush Khandelwal (piyushk), piyushk@cs.utexas.edu
@@ -16,7 +16,7 @@
 #include <QtGui/QMainWindow>
 #include <sensor_msgs/Image.h>
 
-#include "common.h"
+#include <color_classifier/common.h>
 #include "ui_classification_window.h"
 
 namespace color_classifier {
