@@ -1,3 +1,16 @@
+/**
+ * \file  classification_window.cpp
+ * \brief  Class definitions for the classification window.
+ *
+ * \author  Piyush Khandelwal (piyushk), piyushk@cs.utexas.edu
+ *          Mohan Sridharan (smohan) and others.
+ * Copyright (C) 2011, The University of Texas at Austin, Piyush Khandelwal
+ *
+ * License: Modified BSD License
+ *
+ * $ Id: 08/11/2011 03:40:21 PM piyushk $
+ */
+
 #include <iostream>
 #include <algorithm>
 
@@ -13,8 +26,6 @@ namespace color_classifier {
 
   ClassificationWindow::ClassificationWindow(QWidget *parent) : QMainWindow(parent) {
     ui.setupUi(this); // Calling this incidentally connects all ui's triggers to on_...() callbacks in this class.
-    //ReadSettings();
-    setWindowIcon(QIcon(":/images/icon.png"));
 
     // Set up segmented colors
     segColors[UNDEFINED] = qRgb(0,0,0);
@@ -47,7 +58,193 @@ namespace color_classifier {
     updateStatus();
   }
 
-  ClassificationWindow::~ClassificationWindow() {}
+  /**
+   * \brief Sets currentColor if the user indicates a different color
+   */
+  void ClassificationWindow::setColor(int color) {
+    ui.orangeButton->setChecked(false);
+    ui.pinkButton->setChecked(false);
+    ui.blueButton->setChecked(false);
+    ui.greenButton->setChecked(false);
+    ui.whiteButton->setChecked(false);
+    ui.yellowButton->setChecked(false);
+
+    switch(color) {
+      case ORANGE:
+        ui.orangeButton->setChecked(true);
+        break;
+      case PINK:
+        ui.pinkButton->setChecked(true);
+        break;
+      case BLUE:
+        ui.blueButton->setChecked(true);
+        break;
+      case GREEN:
+        ui.greenButton->setChecked(true);
+        break;
+      case WHITE:
+        ui.whiteButton->setChecked(true);
+        break;
+      case YELLOW:
+        ui.yellowButton->setChecked(true);
+        break;
+      default:;
+    };
+
+    ui.colorCombo->setCurrentIndex(color - 1);
+    currentColor = (Color) color;
+
+    updateStatus();    
+  }
+
+  /**
+   * \brief Update the status bar based on current action
+   */
+  void ClassificationWindow::updateStatus() {
+
+    std::string status;
+    switch(clickMode) {
+      case ADD:
+        status += "Adding";
+        break;
+      case DELETE:
+        status += "Removing";
+        break;
+    }
+
+    status += " ";
+    status += segColorNames[currentColor];
+    status += " ";
+    status += "pixels.";
+
+    ui.statusBar->showMessage(QString(status.c_str()));
+  }
+
+  /** 
+   * \brief Function to draw an RgbImage onto an ImageWidget screen
+   */
+  void ClassificationWindow::drawRgbImage(ImageWidget *widget) {
+
+    QRgb value;
+    for (unsigned int i = 0; i < IMAGE_HEIGHT; i++) {
+      for (unsigned int j = 0; j < IMAGE_WIDTH; j++) {
+        value = qRgb(rgbImage[i][j].r, rgbImage[i][j].g, rgbImage[i][j].b);
+        widget->img->setPixel(j,i,value);
+      }
+    }
+
+    widget->repaint();
+
+  }
+
+  /** 
+   * \brief Function to draw an RgbImage onto an ImageWidget screen
+   */
+  void ClassificationWindow::drawSegImage(ImageWidget *widget) {
+
+    QRgb value;
+    for (unsigned int i = 0; i < IMAGE_HEIGHT; i++) {
+      for (unsigned int j = 0; j < IMAGE_WIDTH; j++) {
+        value = segColors[segImage[i][j]];
+        widget->img->setPixel(j,i,value);
+      }
+    }
+
+    widget->repaint();
+
+  }
+
+  /**
+   * \brief  Get an updated image from the main window
+   */
+  void ClassificationWindow::changeImage(sensor_msgs::ImageConstPtr image) {
+
+    for (unsigned int i = 0; i < image->height; i++) {
+      for (unsigned int j = 0; j < image->width; j++) {
+        rgbImage[i][j].r =  image->data[i * image->step + 3 * j + 0]; 
+        rgbImage[i][j].g =  image->data[i * image->step + 3 * j + 1]; 
+        rgbImage[i][j].b =  image->data[i * image->step + 3 * j + 2];
+      }
+    }
+
+    redrawImages();
+  }
+
+  /** 
+   * \brief Obtains seg image by segmenting the raw image using specified
+   *        color table
+   */
+  void ClassificationWindow::segmentImage(bool useTempColorTable) {
+
+    ColorTable *table = &colorTable;
+    if (useTempColorTable) {
+      table = &tempColorTable;
+    }
+
+    for (unsigned int i = 0; i < IMAGE_HEIGHT; i++) {
+      for (unsigned int j = 0; j < IMAGE_WIDTH; j++) {
+        segImage[i][j] = (*table)[rgbImage[i][j].r / 2][rgbImage[i][j].g / 2][rgbImage[i][j].b / 2];
+      }
+    }
+
+  }
+
+  /**
+   * \brief Redraw all the images in the 3 image widgets
+   */
+  void ClassificationWindow::redrawImages(bool useTempColorTable) {
+
+    segmentImage(useTempColorTable);
+    
+    drawRgbImage(ui.rawImage);
+    drawSegImage(ui.segImage);
+
+    if (imageSelected == RGB) {
+      drawRgbImage(ui.bigImage);
+    } else {
+      drawSegImage(ui.bigImage);
+    }
+
+  }
+
+  /**
+   * \brief   Close function has been overloaded to terminate the entire 
+   *          program if this window is terminated
+   */
+  void ClassificationWindow::closeEvent(QCloseEvent *event) {
+    event->accept();
+  }
+
+  /**
+   * \brief Opens the color table specified by colorTableFilename
+   */
+  bool ClassificationWindow::openColorTable() {
+    FILE* f = fopen(colorTableFilename.c_str(), "rb");
+    if (!f || ferror(f)) {
+      return false;
+    }
+    size_t bytesRead = fread(tempColorTable, 128*128*128, 1, f);
+    fclose(f);
+    memcpy(colorTable, tempColorTable, 128*128*128);
+    return bytesRead;
+  }
+
+  /**
+   * \brief   Opens up the default color table - helpful during startup
+   */
+  void ClassificationWindow::openDefaultColorTable() {
+    colorTableFilename = dataDirectory + "default.col";
+    openColorTable();
+  }
+
+  /**
+   * \brief loads the base path of the data directory, allowing classWindow
+   *        to get the default color table directory
+   */
+  void ClassificationWindow::loadDataDirectory(std::string basePath) {
+    dataDirectory = basePath;
+  }
+
   void ClassificationWindow::on_bigImage_clicked(int x, int y, int button) {
     
     switch (button) {
@@ -196,158 +393,6 @@ namespace color_classifier {
     colorTableFilename = fileName.toStdString();
     ui.actionSave->trigger();
 
-  }
-
-  void ClassificationWindow::setColor(int color) {
-    ui.orangeButton->setChecked(false);
-    ui.pinkButton->setChecked(false);
-    ui.blueButton->setChecked(false);
-    ui.greenButton->setChecked(false);
-    ui.whiteButton->setChecked(false);
-    ui.yellowButton->setChecked(false);
-
-    switch(color) {
-      case ORANGE:
-        ui.orangeButton->setChecked(true);
-        break;
-      case PINK:
-        ui.pinkButton->setChecked(true);
-        break;
-      case BLUE:
-        ui.blueButton->setChecked(true);
-        break;
-      case GREEN:
-        ui.greenButton->setChecked(true);
-        break;
-      case WHITE:
-        ui.whiteButton->setChecked(true);
-        break;
-      case YELLOW:
-        ui.yellowButton->setChecked(true);
-        break;
-      default:;
-    };
-
-    ui.colorCombo->setCurrentIndex(color - 1);
-    currentColor = (Color) color;
-
-    updateStatus();    
-  }
-
-  void ClassificationWindow::updateStatus() {
-
-    std::string status;
-    switch(clickMode) {
-      case ADD:
-        status += "Adding";
-        break;
-      case DELETE:
-        status += "Removing";
-        break;
-    }
-
-    status += " ";
-    status += segColorNames[currentColor];
-    status += " ";
-    status += "pixels.";
-
-    ui.statusBar->showMessage(QString(status.c_str()));
-  }
-
-  void ClassificationWindow::drawRgbImage(ImageWidget *widget) {
-
-    QRgb value;
-    for (unsigned int i = 0; i < IMAGE_HEIGHT; i++) {
-      for (unsigned int j = 0; j < IMAGE_WIDTH; j++) {
-        value = qRgb(rgbImage[i][j].r, rgbImage[i][j].g, rgbImage[i][j].b);
-        widget->img->setPixel(j,i,value);
-      }
-    }
-
-    widget->repaint();
-
-  }
-
-  void ClassificationWindow::drawSegImage(ImageWidget *widget) {
-
-    QRgb value;
-    for (unsigned int i = 0; i < IMAGE_HEIGHT; i++) {
-      for (unsigned int j = 0; j < IMAGE_WIDTH; j++) {
-        value = segColors[segImage[i][j]];
-        widget->img->setPixel(j,i,value);
-      }
-    }
-
-    widget->repaint();
-
-  }
-
-  void ClassificationWindow::changeImage(sensor_msgs::ImageConstPtr image) {
-
-    for (unsigned int i = 0; i < image->height; i++) {
-      for (unsigned int j = 0; j < image->width; j++) {
-        rgbImage[i][j].r =  image->data[i * image->step + 3 * j + 0]; 
-        rgbImage[i][j].g =  image->data[i * image->step + 3 * j + 1]; 
-        rgbImage[i][j].b =  image->data[i * image->step + 3 * j + 2];
-      }
-    }
-
-    redrawImages();
-  }
-
-  void ClassificationWindow::segmentImage(bool useTempColorTable) {
-
-    ColorTable *table = &colorTable;
-    if (useTempColorTable) {
-      table = &tempColorTable;
-    }
-
-    for (unsigned int i = 0; i < IMAGE_HEIGHT; i++) {
-      for (unsigned int j = 0; j < IMAGE_WIDTH; j++) {
-        segImage[i][j] = (*table)[rgbImage[i][j].r / 2][rgbImage[i][j].g / 2][rgbImage[i][j].b / 2];
-      }
-    }
-
-  }
-
-  void ClassificationWindow::redrawImages(bool useTempColorTable) {
-
-    segmentImage(useTempColorTable);
-    
-    drawRgbImage(ui.rawImage);
-    drawSegImage(ui.segImage);
-
-    if (imageSelected == RGB) {
-      drawRgbImage(ui.bigImage);
-    } else {
-      drawSegImage(ui.bigImage);
-    }
-
-  }
-
-  void ClassificationWindow::closeEvent(QCloseEvent *event) {
-    //WriteSettings();
-    event->accept();
-  }
-
-  bool ClassificationWindow::openColorTable() {
-    FILE* f = fopen(colorTableFilename.c_str(), "rb");
-    if (!f || ferror(f)) {
-      return false;
-    }
-    size_t bytesRead = fread(tempColorTable, 128*128*128, 1, f);
-    fclose(f);
-    memcpy(colorTable, tempColorTable, 128*128*128);
-    return bytesRead;
-  }
-
-  void ClassificationWindow::openDefaultColorTable() {
-    colorTableFilename = dataDirectory + "default.col";
-    openColorTable();
-  }
-
-  void ClassificationWindow::loadDataDirectory(std::string basePath) {
-    dataDirectory = basePath;
   }
 
 }  // namespace color_classifier

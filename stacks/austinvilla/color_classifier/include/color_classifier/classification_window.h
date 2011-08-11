@@ -46,13 +46,6 @@ namespace color_classifier {
   public:
 
     ClassificationWindow(QWidget *parent = 0);
-    ~ClassificationWindow();
-    
-    /**
-     * \brief   Close function has been overloaded to terminate the entire 
-     *          program if this window is terminated
-     */
-    void closeEvent(QCloseEvent *event);
 
     /**
      * \brief  Get an updated image from the main window
@@ -76,7 +69,7 @@ namespace color_classifier {
     void segmentImage(bool useTempColorTable);
 
     /**
-     * \brief Redraw all the images in the 3 windows
+     * \brief Redraw all the images in the 3 image widgets
      */
     void redrawImages(bool useTempColorTable = false);
 
@@ -106,6 +99,12 @@ namespace color_classifier {
      *        to get the default color table directory
      */
     void loadDataDirectory(std::string basePath);
+
+    /**
+     * \brief   Close function has been overloaded to terminate the entire 
+     *          program if this window is terminated
+     */
+    void closeEvent(QCloseEvent *event);
 
   public slots:
     void on_bigImage_clicked(int x, int y, int button);
