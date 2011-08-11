@@ -1,3 +1,19 @@
+/**
+ * \file  main_window.h
+ * \brief  Header for the MainWindow class. 
+ *
+ * This class is responsible for handling a bit of ros stuff. Also uses
+ * the rosbag api to open bag and control which frame of the bag is being
+ * currently run.
+ *
+ * \author  Piyush Khandelwal (piyushk), piyushk@cs.utexas.edu
+ * Copyright (C) 2011, The University of Texas at Austin, Piyush Khandelwal
+ *
+ * License: Modified BSD License
+ *
+ * $ Id: 08/11/2011 02:41:48 PM piyushk $
+ */
+
 #ifndef MAIN_WINDOW_D9KV76TW
 #define MAIN_WINDOW_D9KV76TW
 
@@ -9,6 +25,10 @@
 
 namespace color_classifier {
 
+  /**
+   * \class MainWindow
+   * \brief MainWindow opens up bag files and selects the frame of interst 
+   */
   class MainWindow : public QMainWindow {
   Q_OBJECT
 
@@ -16,12 +36,23 @@ namespace color_classifier {
     MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
-    void ReadSettings(); // Load up qt program settings at startup
-    void WriteSettings(); // Save qt program settings when closing
+    void initialize(); 
 
+    /**
+     * \brief   Close function has been overloaded to terminate the entire 
+     *          program if this window is terminated
+     */
     void closeEvent(QCloseEvent *event);
+
+    /**
+     * \brief  Overloaded function to show the classification window as well 
+     *         at the same time
+     */
     void show();
 
+    /**
+     * \brief  Gets the path of the package using the ROSPack API 
+     */
     std::string getBaseDirectory();
 
   public slots:
@@ -33,7 +64,7 @@ namespace color_classifier {
       Ui::ClassificationTool ui;
       ClassificationWindow classWindow;
 
-      std::vector<sensor_msgs::ImageConstPtr> images;
+      std::vector<sensor_msgs::ImageConstPtr> images;  ///< Current array of images retrieved from the bag file
   };
 
 } 
