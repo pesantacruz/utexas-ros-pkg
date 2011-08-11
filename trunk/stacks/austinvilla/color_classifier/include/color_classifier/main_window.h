@@ -2,9 +2,10 @@
 #define MAIN_WINDOW_D9KV76TW
 
 #include <QtGui/QMainWindow>
-#include "ui_main_window.h"
-#include "classification_window.hpp"
 #include <sensor_msgs/Image.h>
+
+#include <color_classifier/classification_window.h>
+#include "ui_main_window.h"
 
 namespace color_classifier {
 

@@ -1,7 +1,6 @@
 #include <iostream>
 #include <QtGui>
 #include <QMessageBox>
-#include <color_classifier/main_window.hpp>
 
 #include <ros/package.h>
 #include <rosbag/bag.h>
@@ -9,6 +8,8 @@
 
 #include <boost/foreach.hpp>
 #include <boost/lexical_cast.hpp>
+
+#include <color_classifier/main_window.h>
 
 namespace color_classifier {
 
