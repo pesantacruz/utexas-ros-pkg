@@ -19,7 +19,9 @@ namespace color_classifier {
     void WriteSettings(); // Save qt program settings when closing
 
     void closeEvent(QCloseEvent *event);
-    void show(); 
+    void show();
+
+    std::string getBaseDirectory();
 
   public slots:
     void on_actionOpen_Bag_triggered();

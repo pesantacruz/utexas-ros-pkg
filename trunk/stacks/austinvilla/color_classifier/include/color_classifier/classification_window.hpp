@@ -95,6 +95,17 @@ namespace color_classifier {
      */
     bool openColorTable();
 
+    /**
+     * \brief   Opens up the default color table - helpful during startup
+     */
+    void openDefaultColorTable();
+
+    /**
+     * \brief loads the base path of the data directory, allowing classWindow
+     *        to get the default color table directory
+     */
+    void loadDataDirectory(std::string basePath);
+
   public slots:
     void on_bigImage_clicked(int x, int y, int button);
     void on_bigImage_mouseXY(int x, int y);
@@ -121,6 +132,7 @@ namespace color_classifier {
   private:
     Ui::ClassificationWindow ui;
     std::string colorTableFilename;
+    std::string dataDirectory;
 
     RgbImage rgbImage;
     SegImage segImage;
