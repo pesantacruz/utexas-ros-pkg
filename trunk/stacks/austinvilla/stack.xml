@@ -1,5 +1,7 @@
 <stack>
-  <description brief="austinvilla">austinvilla</description>
+
+  <description brief="ROS Packages from the UT AustinVilla Robot Soccer Team">This stack keeps all the packages from UT AustinVilla in the efforts towards the RoboCup Competition. Currently it contains a color table generation tool, along with a ground truth detection system using the Kinect that can be used for Nao robot. </description>
+
   <author>Maintained by Piyush Khandelwal</author>
   <license>BSD</license>  
   <review status="unreviewed" notes=""/>
