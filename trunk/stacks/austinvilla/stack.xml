@@ -14,5 +14,6 @@
   <depend stack="vision_opencv" />
   <depend stack="perception_pcl" />
   <depend stack="perception_pcl_addons" />
+  <depend stack="geometry" />
 
 </stack>
