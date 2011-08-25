@@ -21,9 +21,9 @@
 #include <boost/foreach.hpp>
 #include <boost/lexical_cast.hpp>
 
-#include <color_classifier/main_window.h>
+#include <color_table/main_window.h>
 
-namespace color_classifier {
+namespace color_table {
 
   using namespace Qt;
 
@@ -88,7 +88,7 @@ namespace color_classifier {
    * \brief  Gets the path of the package using the ROSPack API  
    */
   std::string MainWindow::getBaseDirectory() {
-    return ros::package::getPath("color_classifier");
+    return ros::package::getPath("color_table");
   }
 
   void MainWindow::on_currentFrameSpin_valueChanged(int value) {
@@ -125,4 +125,4 @@ namespace color_classifier {
     classWindow.show();
   }
 
-}  // namespace color_classifier
+}  // namespace color_table

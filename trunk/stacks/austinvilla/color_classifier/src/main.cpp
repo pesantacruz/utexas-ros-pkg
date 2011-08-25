@@ -13,12 +13,12 @@
 #include <QtGui>
 #include <QApplication>
 
-#include <color_classifier/main_window.h>
+#include <color_table/main_window.h>
 
 int main(int argc, char **argv) {
 
   QApplication app(argc, argv);
-  color_classifier::MainWindow main;
+  color_table::MainWindow main;
   main.show();
   app.connect(&app, SIGNAL(lastWindowClosed()), &app, SLOT(quit()));
   int result = app.exec();

@@ -17,10 +17,10 @@
 #include <QtGui/QMainWindow>
 #include <sensor_msgs/Image.h>
 
-#include <color_classifier/common.h>
+#include <color_table/common.h>
 #include "ui_classification_window.h"
 
-namespace color_classifier {
+namespace color_table {
 
   typedef Rgb RgbImage[IMAGE_HEIGHT][IMAGE_WIDTH];
   typedef uint8_t SegImage[IMAGE_HEIGHT][IMAGE_WIDTH];

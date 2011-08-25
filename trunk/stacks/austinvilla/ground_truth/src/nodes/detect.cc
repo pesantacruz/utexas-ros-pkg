@@ -30,7 +30,7 @@
 
 #include <Eigen/Core>
 
-#include <color_classifier/common.h>
+#include <color_table/common.h>
 #include <ground_truth/field_provider.h>
 
 /* Display modes */
@@ -39,7 +39,7 @@
 #define NONE 3
 
 using terminal_tools::parse_argument;
-using namespace color_classifier;
+using namespace color_table;
 
 namespace {
   sensor_msgs::PointCloud2ConstPtr cloudPtr, oldCloudPtr;

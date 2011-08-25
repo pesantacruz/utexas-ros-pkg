@@ -20,10 +20,10 @@
 #include <QtGui/QMainWindow>
 #include <sensor_msgs/Image.h>
 
-#include <color_classifier/classification_window.h>
+#include <color_table/classification_window.h>
 #include "ui_main_window.h"
 
-namespace color_classifier {
+namespace color_table {
 
   /**
    * \class MainWindow
