@@ -18,7 +18,6 @@
   <depend package="image_geometry" />
   <depend package="eigen" />
 
-  <depend package="openni_kinect" />
   <depend package="color_table" />
   
 </package>
