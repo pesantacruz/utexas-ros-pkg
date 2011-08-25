@@ -1,5 +1,5 @@
 <package>
-  <description brief="color_classifier">
+  <description brief="color_table">
 
      Simple utility to construct a color lookup table from a ROS bag file.
 

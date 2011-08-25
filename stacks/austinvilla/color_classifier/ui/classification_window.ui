@@ -91,7 +91,7 @@
      </layout>
     </widget>
    </widget>
-   <widget class="color_classifier::ImageWidget" name="bigImage" native="true">
+   <widget class="color_table::ImageWidget" name="bigImage" native="true">
     <property name="geometry">
      <rect>
       <x>250</x>
@@ -101,7 +101,7 @@
      </rect>
     </property>
    </widget>
-   <widget class="color_classifier::ImageWidget" name="rawImage" native="true">
+   <widget class="color_table::ImageWidget" name="rawImage" native="true">
     <property name="geometry">
      <rect>
       <x>5</x>
@@ -111,7 +111,7 @@
      </rect>
     </property>
    </widget>
-   <widget class="color_classifier::ImageWidget" name="segImage" native="true">
+   <widget class="color_table::ImageWidget" name="segImage" native="true">
     <property name="geometry">
      <rect>
       <x>5</x>
@@ -1146,9 +1146,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>color_classifier::ImageWidget</class>
+   <class>color_table::ImageWidget</class>
    <extends>QWidget</extends>
-   <header>../include/color_classifier/image_widget.h</header>
+   <header>../include/color_table/image_widget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

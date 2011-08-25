@@ -16,10 +16,10 @@
 #include <QtGui>
 #include <iostream>
 
-#include <color_classifier/image_widget.h>
-#include <color_classifier/common.h>
+#include <color_table/image_widget.h>
+#include <color_table/common.h>
 
-namespace color_classifier {
+namespace color_table {
 
   ImageWidget::ImageWidget(QWidget *parent) : QWidget(parent) {
     img = new QImage(IMAGE_WIDTH,IMAGE_HEIGHT,QImage::Format_RGB32);

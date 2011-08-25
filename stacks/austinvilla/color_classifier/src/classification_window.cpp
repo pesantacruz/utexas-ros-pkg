@@ -18,9 +18,9 @@
 #include <QMessageBox>
 #include <QColor>
 
-#include <color_classifier/classification_window.h>
+#include <color_table/classification_window.h>
 
-namespace color_classifier {
+namespace color_table {
 
   using namespace Qt;
 
@@ -395,4 +395,4 @@ namespace color_classifier {
 
   }
 
-}  // namespace color_classifier
+}  // namespace color_table

@@ -16,7 +16,7 @@
 
 #include <stdint.h>
 
-namespace color_classifier {
+namespace color_table {
 
   struct Rgb {
     uint8_t r;

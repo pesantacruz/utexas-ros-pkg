@@ -20,7 +20,7 @@
 
 class QPaintEvent;
 
-namespace color_classifier {
+namespace color_table {
 
   /**
    * \class ImageWidget
