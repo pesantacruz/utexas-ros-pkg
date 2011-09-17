@@ -15,5 +15,6 @@
   <depend stack="perception_pcl" />
   <depend stack="perception_pcl_addons" />
   <depend stack="geometry" />
+  <depend stack="eros" />
 
 </stack>

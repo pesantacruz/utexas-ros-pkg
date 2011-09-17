@@ -37,8 +37,6 @@
 
 #include <ground_truth/field_provider.h>
 
-using terminal_tools::parse_argument;
-
 namespace {
 
   sensor_msgs::PointCloud2ConstPtr cloudPtr, oldCloudPtr;
@@ -76,6 +74,7 @@ namespace {
   Eigen::Affine3f transformMatrix;
   Eigen::Vector4f groundPlaneParameters;
 
+  int queue_size = 1;
   std::string calibFile = "data/calib.txt";
 
   std::string status;
@@ -394,10 +393,8 @@ int main (int argc, char** argv) {
   ros::NodeHandle nh;
 
   // Get the queue size from the command line
-  int queue_size = 1;
-  parse_argument (argc, argv, "-qsize", queue_size);
+  terminal_tools::parse_argument (argc, argv, "-qsize", queue_size);
 
-  nh.param("calibFile", calibFile, calibFile);
   terminal_tools::parse_argument (argc, argv, "-calibFile", calibFile);
   ROS_INFO("Calib File: %s", calibFile.c_str());
 
