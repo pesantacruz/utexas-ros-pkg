@@ -36,7 +36,6 @@
 /* Display modes */
 #define FULL 1
 #define RELEVANT 2
-#define NONE 3
 
 using namespace color_table;
 
@@ -66,7 +65,8 @@ namespace {
  */
 void loadColorTable() {
   FILE* f = fopen(colorTableFile.c_str(), "rb");
-  fread(colorTable, 128*128*128, 1, f);
+  size_t size = fread(colorTable, 128*128*128, 1, f);
+  size = size; // remove warning
   fclose(f);
 }
 
@@ -216,13 +216,12 @@ void cloudCallback (const sensor_msgs::PointCloud2ConstPtr& cloudPtrFromMsg) {
 void getParameters(ros::NodeHandle &nh, int argc, char ** argv) {
 
   qSize = 1;
-  cloudTopic = "cloudTopic";
+  cloudTopic = "input";
   calibFile = "data/calib.txt";
   colorTableFile = "data/default.col";
   mode = 1;
 
   terminal_tools::parse_argument (argc, argv, "-qsize", qSize);
-  terminal_tools::parse_argument (argc, argv, "-cloudTopic", cloudTopic);
   terminal_tools::parse_argument (argc, argv, "-calibFile", calibFile);
   terminal_tools::parse_argument (argc, argv, "-logFile", logFile);
   terminal_tools::parse_argument (argc, argv, "-colorTableFile", colorTableFile);
