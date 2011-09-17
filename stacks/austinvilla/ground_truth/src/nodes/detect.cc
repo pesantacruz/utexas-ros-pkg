@@ -38,7 +38,6 @@
 #define RELEVANT 2
 #define NONE 3
 
-using terminal_tools::parse_argument;
 using namespace color_table;
 
 namespace {
@@ -222,21 +221,11 @@ void getParameters(ros::NodeHandle &nh, int argc, char ** argv) {
   colorTableFile = "data/default.col";
   mode = 1;
 
-  nh.param("qsize", qSize, qSize); 
   terminal_tools::parse_argument (argc, argv, "-qsize", qSize);
-
-  nh.param("cloudTopic", cloudTopic, cloudTopic);
   terminal_tools::parse_argument (argc, argv, "-cloudTopic", cloudTopic);
-
-  nh.param("calibFile", calibFile, calibFile);
   terminal_tools::parse_argument (argc, argv, "-calibFile", calibFile);
-
-  nh.param("logFile", logFile, logFile);
   terminal_tools::parse_argument (argc, argv, "-logFile", logFile);
-
-  nh.param("colorTableFile", colorTableFile, colorTableFile);
   terminal_tools::parse_argument (argc, argv, "-colorTableFile", colorTableFile);
-
   terminal_tools::parse_argument (argc, argv, "-mode", mode);
 
   ROS_INFO("Calib File: %s", calibFile.c_str());
