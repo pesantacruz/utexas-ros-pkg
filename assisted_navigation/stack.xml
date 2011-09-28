@@ -1,0 +1,9 @@
+<stack>
+  <description brief="assisted_navigation">assisted_navigation</description>
+  <author>Maintained by Piyush Khandelwal</author>
+  <license>BSD</license>  
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/assisted_navigation</url>
+  <depend stack="ros" />
+
+</stack>
