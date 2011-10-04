@@ -15,10 +15,12 @@
 #ifndef PATTERNPARSER_KQJF84V6
 #define PATTERNPARSER_KQJF84V6
 
-#include <yaml.h>
+#include <fstream>
+#include <stdint.h>
+#include <yaml-cpp/yaml.h>
 #include <boost/foreach.hpp>
 
-namespace ar_nav {
+namespace ar_nav_common {
 
   struct Vec3f {
     float x;
