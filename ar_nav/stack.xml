@@ -1,9 +1,12 @@
 <stack>
-  <description brief="assisted_navigation">assisted_navigation</description>
+  <description brief="ar_nav">ar_nav</description>
   <author>Maintained by Piyush Khandelwal</author>
   <license>BSD</license>  
   <review status="unreviewed" notes=""/>
-  <url>http://ros.org/wiki/assisted_navigation</url>
+  <url>http://ros.org/wiki/ar_nav</url>
+
   <depend stack="ros" />
+  <depend stack="ccny_vision" />
+  <depend stack="navigation" />
 
 </stack>
