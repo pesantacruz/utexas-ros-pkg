@@ -1,0 +1,16 @@
+- name: 4x4_1
+  location: [0, 0, 0]
+  size: 225.0
+  patternFile: data/4x4/4x4_1.patt
+- name: 4x4_2
+  location: [1.0, 0, 0]
+  size: 225.0
+  patternFile: data/4x4/4x4_2.patt
+- name: 4x4_3
+  location: [0, 1.0, 0]
+  size: 225.0
+  patternFile: data/4x4/4x4_3.patt
+- name: 4x4_4
+  location: [1.0, 1.0, 0]
+  size: 225.0
+  patternFile: data/4x4/4x4_4.patt
