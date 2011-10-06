@@ -10,7 +10,9 @@
   <url>http://ros.org/wiki/ar_localization</url>
 
   <depend package="roscpp"/>
+  <depend package="tf"/>
   <depend package="yaml_cpp"/>
+  <depend package="ar_nav_common"/>
 
 </package>
 
