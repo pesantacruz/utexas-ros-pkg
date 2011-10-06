@@ -1,6 +1,6 @@
 #include <ar_nav_common/PatternParser.h>
 
-using namespace ar_nav_common;
+using namespace ar_nav;
 
 int main(int argc, const char *argv[]) {
 

@@ -20,7 +20,7 @@
 #include <yaml-cpp/yaml.h>
 #include <boost/foreach.hpp>
 
-namespace ar_nav_common {
+namespace ar_nav {
 
   struct Vec3f {
     float x;
