@@ -54,14 +54,15 @@ void getParams(ros::NodeHandle& nh) {
 int main (int argc, char **argv) {
 
   ros::init(argc, argv, NODE);
-  ros::NodeHandle nh;
-  getParams(nh);
+  ros::NodeHandle nh, nhParam("~");
+  getParams(nhParam);
 
   // Get information about the patterns
   std::vector<ar_nav::Pattern> patterns;
   ar_nav::readPatternFile(patternFile, patterns);
 
-  tf::TransformListener listener(nh);
+  //tf::TransformListener listener(nh);
+  tf::TransformListener listener;
   tf::Vector3 averageTranslation(0,0,0);
   tf::Quaternion averageRotation(0,0,0,0);
   int numTransformations = 0;
@@ -69,33 +70,65 @@ int main (int argc, char **argv) {
   // Get transformations for every marker
   BOOST_FOREACH(const ar_nav::Pattern& pattern, patterns) {
 
+    std::cout << pattern.name << std::endl;
+
     // Get transform from /marker to /camera
-    tf::StampedTransform transformMarkerToCam;
-    bool transformAvailable = true;
+    tf::StampedTransform transformCamToMarker;
+    listener.waitForTransform(pattern.name, cameraBaseFrame, ros::Time(), ros::Duration(1.0)); 
     try {
-      listener.lookupTransform(cameraBaseFrame, pattern.name,  
-                               ros::Time(0), transformMarkerToCam);
+      listener.lookupTransform(cameraBaseFrame, pattern.name,
+                               ros::Time(), transformCamToMarker);
     } catch (tf::TransformException ex) {
-      transformAvailable = false;
       ROS_ERROR("Error getting transformation for %s: %s", pattern.name.c_str(), ex.what());
+      continue;
     }
 
-    if (!transformAvailable) {
-      continue;
-    } 
+    tf::Quaternion q = transformCamToMarker.getRotation();
+    tf::Vector3 v = transformCamToMarker.getOrigin();
+    std::cout << "  CamToMarker" << std::endl;
+    std::cout << "  - Translation: [" << v.getX() << ", " << v.getY() << ", " << v.getZ() << "]" << std::endl;
+    std::cout << "  - Rotation: in Quaternion [" << q.getX() << ", " << q.getY() << ", "
+	  << q.getZ() << ", " << q.getW() << "]" << std::endl;
 
     // Compute transform of /map to /marker
-    tf::Quaternion noRotation(0, 0, 0, 0);
-    tf::Vector3 markerPosition(pattern.location.x, pattern.location.y, pattern.location.z);
-    tf::Transform transformWorldToMarker(noRotation, markerPosition);
+    tf::Quaternion noRotation(0, 0, 0, 1);
+    tf::Vector3 markerPosition(-pattern.location.x, -pattern.location.y, -pattern.location.z);
+    tf::Transform transformMarkerToMap(noRotation, markerPosition);
+
+    q = transformMarkerToMap.getRotation();
+    v = transformMarkerToMap.getOrigin();
+    std::cout << "  MarkerToMap" << std::endl;
+    std::cout << "  - Translation: [" << v.getX() << ", " << v.getY() << ", " << v.getZ() << "]" << std::endl;
+    std::cout << "  - Rotation: in Quaternion [" << q.getX() << ", " << q.getY() << ", "
+	  << q.getZ() << ", " << q.getW() << "]" << std::endl;
 
     // Compute transformation from /map to /camera
-    tf::Transform transformWorldToCam(tf::Quaternion(0,0,0,0), tf::Vector3(0,0,0));
-    transformWorldToCam.mult(transformWorldToMarker, transformWorldToCam);
+    tf::Transform transformCamToMap(tf::Quaternion(0,0,0,1), tf::Vector3(0,0,0));
+    transformCamToMap.mult(transformCamToMarker, transformMarkerToMap);
+    q = transformCamToMap.getRotation();
+    v = transformCamToMap.getOrigin();
+    std::cout << "  CamToMap" << std::endl;
+    std::cout << "  - Translation: [" << v.getX() << ", " << v.getY() << ", " << v.getZ() << "]" << std::endl;
+    std::cout << "  - Rotation: in Quaternion [" << q.getX() << ", " << q.getY() << ", "
+	  << q.getZ() << ", " << q.getW() << "]" << std::endl;
 
-    averageTranslation += transformWorldToCam.getOrigin();
-    averageRotation += transformWorldToCam.getRotation();  
-    numTransformations++;  
+    tf::Transform transformMapToCam = transformCamToMap.inverse();
+    q = transformMapToCam.getRotation();
+    v = transformMapToCam.getOrigin();
+    std::cout << "  MapToCam" << std::endl;
+    std::cout << "  - Translation: [" << v.getX() << ", " << v.getY() << ", " << v.getZ() << "]" << std::endl;
+    std::cout << "  - Rotation: in Quaternion [" << q.getX() << ", " << q.getY() << ", "
+	  << q.getZ() << ", " << q.getW() << "]" << std::endl;
+
+    numTransformations++;
+
+    if (numTransformations == 1) {
+      averageTranslation = transformMapToCam.getOrigin();
+      averageRotation = transformMapToCam.getRotation();  
+    } else {
+      averageTranslation += transformMapToCam.getOrigin();
+      averageRotation += transformMapToCam.getRotation();  
+    }
 
   }
 
@@ -107,10 +140,10 @@ int main (int argc, char **argv) {
   averageTranslation *= 1.0 / numTransformations;
   averageRotation *= 1.0 / numTransformations;
 
-  std::ofstream fout((ros::package::getPath("ar_localization") + "/launch/" + cameraId).c_str());
+  std::ofstream fout((ros::package::getPath("ar_localization") + "/launch/" + cameraId + "-tf.launch").c_str());
 
   fout << "<launch>" << std::endl;
-  fout << "  <node pkg=\"tf\" type=\"static_transform_publisher\" name=\"link_" << cameraId << "_broadcaster\""
+  fout << "  <node pkg=\"tf\" type=\"static_transform_publisher\" name=\"link_" << cameraId << "_broadcaster\" "
        << "args=\"" << averageTranslation.x() << " " << averageTranslation.y() << " " << averageTranslation.z()
        << " " << averageRotation.getX() << " " << averageRotation.getY() << " " << averageRotation.getZ() << " "
        << averageRotation.getW() << " map " << cameraBaseFrame << " 100\" />" << std::endl;
