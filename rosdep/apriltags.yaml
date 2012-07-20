@@ -1,0 +1,3 @@
+libglib-dev:
+  ubuntu: libglib2.0-dev
+
