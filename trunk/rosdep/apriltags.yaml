@@ -1,3 +1,8 @@
 libglib-dev:
   ubuntu: libglib2.0-dev
-
+libdc1394-22-dev:
+  ubuntu: libdc1394-22-dev
+gv:
+  ubuntu: gv
+autopoint:
+  ubuntu: autopoint
