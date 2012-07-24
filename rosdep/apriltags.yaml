@@ -8,3 +8,5 @@ autopoint:
   ubuntu: autopoint
 gtk-doc-tools:
   ubuntu: gtk-doc-tools
+maven:
+  ubuntu: maven
