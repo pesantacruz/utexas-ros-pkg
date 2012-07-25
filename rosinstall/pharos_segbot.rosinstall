@@ -1,0 +1,7 @@
+- git:
+    uri: git://github.com/piyushk/segway-rmp-ros-pkg.git
+    local-name: segway-rmp-ros-pkg
+- svn:
+    uri: https://utexas-ros-pkg.googlecode.com/svn/branches/experimental/stacks/pharos_segbot
+    local-name: pharos_segbot
+
