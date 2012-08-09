@@ -390,7 +390,7 @@ public class TagPublisher extends AbstractNodeMain {
 
     // Create publisher for broadcastin tf messages
     final Publisher<tf.tfMessage> tfPublisher;
-    tfPublisher = node.newPublisher("tf", tf.tfMessage._TYPE);
+    tfPublisher = node.newPublisher("/tf", tf.tfMessage._TYPE);
 
     // Subscribe to the image message    
     Subscriber<sensor_msgs.Image> image_subscriber =
