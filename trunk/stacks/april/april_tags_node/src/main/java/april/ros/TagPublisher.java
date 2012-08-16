@@ -381,11 +381,11 @@ public class TagPublisher extends AbstractNodeMain {
 
     // Create the publisher for the Tag Array
     final Publisher<april_msgs.TagPoseArray> publisher = 
-      node.newPublisher("~tags", april_msgs.TagPoseArray._TYPE);
+      node.newPublisher("tags", april_msgs.TagPoseArray._TYPE);
 
     // Create the publisher for rviz visualization
     final Publisher<visualization_msgs.MarkerArray> visPublisher;
-    visPublisher = node.newPublisher("visualization_marker_array", 
+    visPublisher = node.newPublisher("/visualization_marker_array", 
           visualization_msgs.MarkerArray._TYPE);
 
     // Create publisher for broadcastin tf messages
