@@ -1,7 +1,7 @@
 <package>
   <description brief="april_tags_node">
 
-     apriltags_node
+     ROS Wrapper for running the APRIL Tag detection system
 
   </description>
   <author>Piyush Khandelwal</author>
