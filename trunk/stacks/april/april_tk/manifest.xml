@@ -1,10 +1,8 @@
 <package>
   <description brief="april_tk">
-
-     april_tk
-
+     Wrapper for downloading and installing the April toolkit
   </description>
-  <author>Edwin Olson</author>
+  <author>Edwin Olson and others</author>
   <license>GNU LGPL</license>
   <review status="unreviewed" notes=""/>
   <url>http://ros.org/wiki/april_tk</url>
