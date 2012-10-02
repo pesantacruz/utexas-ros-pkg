@@ -107,6 +107,9 @@ public class TagPublisher extends AbstractNodeMain {
    * which is not supported directly by BufferedImage. The only 3 byte 
    * representation supported by BufferedImage is 3BYTE_BGR. Since the tags are
    * unaffected by color, we flip the R and B channels in this efficient copy.
+   *
+   * TODO(10/2/2012): This has a bug, and the image appears shifted. Reverting
+   * to inefficient method for now
    */
   public static BufferedImage messageToBufferedImageFast(
       sensor_msgs.Image message) {
@@ -407,8 +410,16 @@ public class TagPublisher extends AbstractNodeMain {
         }
 
         // Obtain Buffered Image from the ROS image message
-        BufferedImage im = TagPublisher.messageToBufferedImageFast(message);
+        BufferedImage im = TagPublisher.messageToBufferedImage(message);
         double[] size = new double[] {im.getWidth()/2.0, im.getHeight()/2.0};
+
+        // try {
+        //     // retrieve image
+        //     File outputfile = new File("/home/piyushk/saved.png");
+        //     ImageIO.write(im, "png", outputfile);
+        // } catch (IOException e) {
+        //   log.error("unable to save image");
+        // }
 
         // Detect tags!
         ArrayList<TagDetection> detections = detector.process(im, size);
