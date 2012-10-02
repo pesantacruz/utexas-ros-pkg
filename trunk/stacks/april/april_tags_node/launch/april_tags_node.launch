@@ -27,9 +27,6 @@
     <param name="broadcast_tf" value="true" />
     <param name="tag_vis_magnification" value="2.0" />
 
-    <remap from="image_raw" to="ardrone/image_raw" />
-    <remap from="camera_info" to="ardrone/camera_info" />
-
   </node>
 </launch>
 
