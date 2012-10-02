@@ -1,0 +1,21 @@
+<package>
+  <description brief="april_test">
+
+     april_test
+
+  </description>
+  <author>Piyush Khandelwal</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/april_test</url>
+
+  <depend package="april_msgs" />
+  <depend package="image_transport" />
+  <depend package="cv_bridge" />
+  <depend package="roscpp" />
+
+  <rosdep name="opencv2" />
+
+</package>
+
+
