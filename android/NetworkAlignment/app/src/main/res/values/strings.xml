@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">NetworkAlignment</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="target_ip_hint">Target IP Address</string>
+    <string name="target_port_hint">Port</string>
+    <string name="my_port_hint">My Port</string>
+
+
+</resources>
