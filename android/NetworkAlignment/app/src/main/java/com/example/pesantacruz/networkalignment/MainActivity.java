@@ -1,11 +1,19 @@
 package com.example.pesantacruz.networkalignment;
 
 import android.app.Activity;
+import android.content.Intent;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
+import android.text.method.ScrollingMovementMethod;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import java.io.DataInputStream;
@@ -39,6 +47,8 @@ public class MainActivity extends ActionBarActivity {
     public EditText target_port_text;
     public EditText my_port_text;
     public TextView displayRecMessage;
+    public Spinner message_spinner;
+    public LoggingManager loggingManager;
     Handler updateConversationHandler;
 
 
@@ -54,33 +64,90 @@ public class MainActivity extends ActionBarActivity {
         target_port_text = (EditText) findViewById(R.id.target_port_text);
         my_port_text = (EditText) findViewById(R.id.my_port_text);
         displayRecMessage = (TextView) findViewById(R.id.texttoscreen);
-
+        displayRecMessage.setMovementMethod(new ScrollingMovementMethod());
+        message_spinner = (Spinner) findViewById(R.id.spinner_messages);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+                R.array.message_options, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        message_spinner.setAdapter(adapter);
         updateConversationHandler = new Handler();
+        loggingManager = new LoggingManager();
 
         System.out.println("Server initialized...");
 
 
     }
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu items for use in the action bar
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main_activity_menu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()) {
+            case R.id.clear_view:
+                clearView();
+                return true;
+            case R.id.view_logs:
+                viewLogs();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString("target_ip_text", target_ip_text.getText().toString());
+        outState.putString("target_port_text", target_port_text.getText().toString());
+        outState.putString("my_port_text", my_port_text.getText().toString());
+        outState.putString("displayRecMessage", displayRecMessage.getText().toString());
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedState) {
+        super.onRestoreInstanceState(savedState);
+        target_ip_text.setText(savedState.getString("target_ip_text"));
+        target_port_text.setText(savedState.getString("target_port_text"));
+        my_port_text.setText(savedState.getString("my_port_text"));
+        displayRecMessage.setText(savedState.getString("displayRecMessage"));
+    }
 
     //Start Server Button
     public void onClick_Start(View view) {
-        SERVERPORT = Integer.parseInt(my_port_text.getText().toString());
-
-        this.serverThread = new Thread(new ServerThread());
-        this.serverThread.start();
+        try {
+            SERVERPORT = Integer.parseInt(my_port_text.getText().toString());
+            this.serverThread = new Thread(new ServerThread());
+            this.serverThread.start();
+        } catch (Exception e) {
+            //e.printStackTrace();
+        }
     }
 
 
     //Button Press
     public void onClick_Send(View view) {
-        System.out.println("Button Pressed...");
-
-        TARGET_SERVER_IP = target_ip_text.getText().toString();
-        TARGET_SERVERPORT = Integer.parseInt(target_port_text.getText().toString());
-
-        new Thread(new ClientThread()).start();
+        try {
+            System.out.println("Button Pressed...");
+            TARGET_SERVER_IP = target_ip_text.getText().toString();
+            TARGET_SERVERPORT = Integer.parseInt(target_port_text.getText().toString());
+            new Thread(new ClientThread()).start();
+        } catch (Exception e) {
+            //e.printStackTrace();
+        }
     }
 
+    public void clearView() {
+        displayRecMessage.setText("");
+    }
+    public void viewLogs(){
+        Intent intent = new Intent(this, ViewLogActivity.class);
+        intent.putExtra("log", loggingManager.getLog());
+        startActivity(intent);
+    }
 
     //ServerThread//
     class ServerThread implements Runnable {
@@ -116,6 +183,7 @@ public class MainActivity extends ActionBarActivity {
     class CommunicationThread implements Runnable {
         public Socket incomingSocket;
         private byte[] data;
+        private String message;
 
         public CommunicationThread(Socket incomingSocket){
             this.incomingSocket = incomingSocket;
@@ -134,16 +202,37 @@ public class MainActivity extends ActionBarActivity {
 
             DataInputStream dis = new DataInputStream(in);
             DataOutputStream dos = new DataOutputStream(out);
+            message = "";
+            while(!incomingSocket.isClosed()) {
+                try {
+                    int len = dis.readInt();
+                    byte[] data = new byte[len];
 
-            int len = dis.readInt();
-            byte[] data = new byte[len];
-
-            if (len>0) {
-                dis.readFully(data);
+                    if (len>0) {
+                        dis.readFully(data);
+                    }
+                    loggingManager.receiveFrom(incomingSocket.getInetAddress().getHostAddress(), len);
+                    String input = new String(data);
+                    message += input;
+                    System.out.println("Data Received..." + data);
+                    System.out.println("Message Received..." + input);
+                    String[] message_array = getResources().getStringArray(R.array.message_options);
+                    boolean isValid = false;
+                    for (String s : message_array) {
+                        if (s.equals(input)) {
+                            isValid = true;
+                        }
+                    }
+                    if (isValid) {
+                        System.out.println("Message is Valid.");
+                    } else {
+                        System.out.println("Message is Invalid.");
+                    }
+                    message += isValid + "\n";
+                } catch (IOException e) {
+                    break;
+                }
             }
-
-            System.out.println("Data Received..." + data);
-
             return data;
 
         }
@@ -151,7 +240,7 @@ public class MainActivity extends ActionBarActivity {
         public void run() {
            // while (!Thread.currentThread().isInterrupted()) {
            //     System.out.println("Entering Comm Thread...");
-                updateConversationHandler.post(new UpdateUIThread(data));
+                updateConversationHandler.post(new UpdateUIThread(message));
            // }
         }
     }
@@ -164,6 +253,7 @@ public class MainActivity extends ActionBarActivity {
         public UpdateUIThread(byte[] data) {
             this.recDataString = data.toString();
         }
+        public UpdateUIThread(String message){this.recDataString = message;}
 
         @Override
         public void run() {
@@ -184,11 +274,11 @@ public class MainActivity extends ActionBarActivity {
                 System.out.println("Client Socket created...");
 
 
-                sendBytes(clientSocket, myByteArray);
-
+                //sendBytes(clientSocket, myByteArray);
+                //for (int i = 0; i < 100; i++) {
+                    sendMessage(clientSocket);
+                //}
                 System.out.println("Message Sent...");
-
-
                 clientSocket.close();
             }
             catch (IOException e1) {
@@ -206,11 +296,26 @@ public class MainActivity extends ActionBarActivity {
 
             DataInputStream dis = new DataInputStream(in);
             DataOutputStream dos = new DataOutputStream(out);
-
+            String message = "Hello World";
+            len = message.length();
+            myByteArray = message.getBytes();
             dos.writeInt(len);
             if (len >0) {
                 dos.write(myByteArray, start, len);
             }
+        }
+
+        public void sendMessage(Socket clientSocket) throws IOException {
+            InputStream in = clientSocket.getInputStream();
+            OutputStream out = clientSocket.getOutputStream();
+            DataInputStream dis = new DataInputStream(in);
+            DataOutputStream dos = new DataOutputStream(out);
+            Spinner mySpinner=(Spinner) findViewById(R.id.spinner_messages);
+            String message = mySpinner.getSelectedItem().toString();
+            dos.writeInt(message.length());
+            dos.writeBytes(message);
+            loggingManager.sendTo(clientSocket.getInetAddress().getHostAddress(), message.length());
+
         }
     }
 

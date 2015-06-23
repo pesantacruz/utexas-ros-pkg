@@ -5,6 +5,24 @@
     <string name="target_ip_hint">Target IP Address</string>
     <string name="target_port_hint">Port</string>
     <string name="my_port_hint">My Port</string>
+    <string name="promp">Please choose a message.</string>
+    <string name="clear_view">Clear View</string>
+    <string name="view_logs">View Logs</string>
+
+
+    <string-array name="message_options">
+        <item>RVUXMRDXBNDIGTDDYZPHWSJAFBNWEZVQUURQKLMZSUMHHDWGYMMPLZAIWZWIPYGD</item>
+        <item>SXLESOGGRDDVKJWHIMGDKVDAFNDTDMZPEFHSMVLLURYZXPAMLLWQEIJRXPRSTBM</item>
+        <item>BTTRLRQNDUECHMKGQNJAAAGLRQVEPRTKZHTYYXDIVENEUGYOBUUHYNRROSSWJCQL</item>
+        <item>RFGESYZXVNKZGHQLCNBJNMWNIQPWAYLIVFDCCINKHZIGMKXDXURNVYOBUOUPVBFV</item>
+        <item>UPRYVHDAMYSZORWEIIFZTCQFXIRECSIWTFUBHYTOVJXICMBXBFQFKIMTZIVDERLX</item>
+        <item>WVQFDIKTGEAUGKZPSESETYBTFJFSLVGBDERPDQNNBKLUFGXYQVQLDPWQQUXJKQUP</item>
+        <item>OCPEYUKCYYZJRCDOAYHNYZAUNOBXKEPPHEAGNVELLVJQEFOSNKUJLRGKOGORUPMN</item>
+        <item>HFBLHDAFKEOULALWAMSTRJNUNBVODVQMQDOZKUNNLVGYSUYUQPSTCFJXDZVORZFM</item>
+        <item>DLTPHLUHXUQYMIMXUAQGZLQVBMCFOVBFBQJJECPHHXSSDXFLTUQPXDMLGIKLTLQY</item>
+        <item>ZGNFJELSELPFKIWQXZIGOSQSQLZXHISUZDZDKNQXIOBAXWFMCHASWQJZJSDLITEC</item>
+    </string-array>
+    <string name="title_activity_view_log">ViewLogActivity</string>
 
 
 </resources>
