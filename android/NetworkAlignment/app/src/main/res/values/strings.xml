@@ -2,15 +2,14 @@
     <string name="app_name">NetworkAlignment</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
-    <string name="target_ip_hint">Target IP Address</string>
     <string name="target_port_hint">Port</string>
     <string name="my_port_hint">My Port</string>
-    <string name="promp">Please choose a message.</string>
     <string name="clear_view">Clear View</string>
     <string name="view_logs">View Logs</string>
 
 
     <string-array name="message_options">
+        <item>Please Choose a Message...</item>
         <item>RVUXMRDXBNDIGTDDYZPHWSJAFBNWEZVQUURQKLMZSUMHHDWGYMMPLZAIWZWIPYGD</item>
         <item>SXLESOGGRDDVKJWHIMGDKVDAFNDTDMZPEFHSMVLLURYZXPAMLLWQEIJRXPRSTBM</item>
         <item>BTTRLRQNDUECHMKGQNJAAAGLRQVEPRTKZHTYYXDIVENEUGYOBUUHYNRROSSWJCQL</item>

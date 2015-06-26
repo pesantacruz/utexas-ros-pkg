@@ -1,5 +1,6 @@
 package com.example.pesantacruz.networkalignment;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -49,7 +50,6 @@ public class MainActivity extends ActionBarActivity {
     ArrayList<String> ips = new ArrayList<String>();
 
     //UI Elements
-    public EditText target_ip_text;
     public EditText target_port_text;
     public EditText my_port_text;
     public TextView displayRecMessage;
@@ -68,7 +68,6 @@ public class MainActivity extends ActionBarActivity {
 //        this.serverThread = new Thread(new ServerThread());
 //        this.serverThread.start();
 
-        target_ip_text = (EditText) findViewById(R.id.target_ip_text);
         target_port_text = (EditText) findViewById(R.id.target_port_text);
         my_port_text = (EditText) findViewById(R.id.my_port_text);
         displayRecMessage = (TextView) findViewById(R.id.texttoscreen);
@@ -76,6 +75,7 @@ public class MainActivity extends ActionBarActivity {
         message_spinner = (Spinner) findViewById(R.id.spinner_messages);
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
                 R.array.message_options, android.R.layout.simple_spinner_item);
+
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         message_spinner.setAdapter(adapter);
         displaySearchMessage = (TextView) findViewById(R.id.searchtext);
@@ -170,7 +170,6 @@ public class MainActivity extends ActionBarActivity {
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putString("target_ip_text", target_ip_text.getText().toString());
         outState.putString("target_port_text", target_port_text.getText().toString());
         outState.putString("my_port_text", my_port_text.getText().toString());
         outState.putString("displayRecMessage", displayRecMessage.getText().toString());
@@ -179,7 +178,6 @@ public class MainActivity extends ActionBarActivity {
     @Override
     protected void onRestoreInstanceState(Bundle savedState) {
         super.onRestoreInstanceState(savedState);
-        target_ip_text.setText(savedState.getString("target_ip_text"));
         target_port_text.setText(savedState.getString("target_port_text"));
         my_port_text.setText(savedState.getString("my_port_text"));
         displayRecMessage.setText(savedState.getString("displayRecMessage"));

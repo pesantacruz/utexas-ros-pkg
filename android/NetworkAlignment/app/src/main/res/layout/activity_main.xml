@@ -5,75 +5,98 @@
     android:orientation="vertical">
 
     <TextView
-        android:text="Welcome"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
-
-    <EditText
-        android:id="@+id/target_ip_text"
-        android:hint="@string/target_ip_hint"
-        android:inputType="text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
-
-    <EditText
-        android:id="@+id/target_port_text"
-        android:hint="@string/target_port_hint"
-        android:inputType="number"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
-
-<Button
-        android:id="@+id/neighbors"
+        android:text="Server Settings"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:onClick="onClick_Search"
-        android:text="Check for Neighbors"/>
-
-    <TextView
-        android:id="@+id/searchtext"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Searching..."
-        android:paddingLeft="120px"/>
-
-    <Spinner
-        android:id="@+id/ip_spinner"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:spinnerMode="dropdown"/>
-
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:textSize="20sp"/>
 
     <EditText
         android:id="@+id/my_port_text"
         android:hint="@string/my_port_hint"
         android:inputType="number"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="30dp"/>
 
     <Button
+        android:text="Start"
+        android:onClick="onClick_Start"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:onClick="onClick_Start"
-        android:text="Start"/>
+        android:layout_marginLeft="250dp"
+        android:layout_marginTop="-47dp" />
+
+    <View
+        android:background="@android:color/darker_gray"
+        android:layout_width="fill_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="15dp"/>
 
     <TextView
+        android:text="Client Settings"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/promp"
-        android:id="@+id/prompView" />
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="15dp"
+        android:layout_marginBottom="5dp"
+        android:textSize="20sp"/>
+
+    <TextView
+        android:text="Destination"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="5dp"
+        android:layout_marginTop="10dp"/>
+
+    <Button
+        android:text="Check for Neighbors"
+        android:id="@+id/neighbors"
+        android:onClick="onClick_Search"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="5dp" />
+
+    <TextView
+        android:text="Searching..."
+        android:id="@+id/searchtext"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingLeft="55dp"/>
 
     <Spinner
+        android:id="@+id/ip_spinner"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:spinnerMode="dropdown"/>
+
+    <EditText
+        android:id="@+id/target_port_text"
+        android:hint="@string/target_port_hint"
+        android:inputType="number"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="30dp"
+        android:layout_marginTop="5dp" />
+
+    <Spinner
+        android:id="@+id/spinner_messages"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/spinner_messages"
+        android:layout_marginTop="10dp"
         android:spinnerMode="dropdown" />
 
     <Button
+        android:text="Send"
+        android:onClick="onClick_Send"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:onClick="onClick_Send"
-        android:text="Send"/>
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="10dp" />
 
     <TextView
         android:id="@+id/texttoscreen"
