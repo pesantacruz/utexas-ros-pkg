@@ -12,18 +12,19 @@ import java.net.Socket;
  */
 public class Decoder {
     int length;
-    String destination;
-    String source;
+    byte[] destination;
+    byte[] source;
     int count;
-    byte[] message;
-    public static final int NAMELENGTH = 5;
+    String message;
+    public static final int NAMELENGTH = 2;
 
-    public Decoder(Socket incomingSocket) throws IOException{
+    public Decoder(Socket incomingSocket, LoggingManager loggingManager) throws IOException{
         InputStream in = incomingSocket.getInputStream();
         OutputStream out = incomingSocket.getOutputStream();
 
         DataInputStream dis = new DataInputStream(in);
         DataOutputStream dos = new DataOutputStream(out);
+        message = "";
         while(!incomingSocket.isClosed()) {
             try {
                 length = dis.readInt();
@@ -32,11 +33,13 @@ public class Decoder {
                 byte[] sor = new byte[NAMELENGTH];
                 dis.readFully(des);
                 dis.readFully(sor);
-                destination = new String(des);
-                source = new String(sor);
+                count = dis.readInt();
                 if (length>0) {
                     dis.readFully(data);
                 }
+                String input = new String(data);
+                message += input +"\n";
+                loggingManager.receiveFrom(incomingSocket.getInetAddress().getHostAddress(), length);
 
             } catch (IOException e) {
                 break;

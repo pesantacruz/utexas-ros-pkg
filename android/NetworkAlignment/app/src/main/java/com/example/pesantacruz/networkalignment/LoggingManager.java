@@ -44,11 +44,11 @@ public class LoggingManager {
         String result = "";
         result += "Sent\n";
         for(String key : sendlist.keySet()){
-            result += key + "\t" + sendlist.get(key).getCount()+"messages " + sendlist.get(key).getNumbytes() +"Bytes" + "\n";
+            result += key + "\t\t" + sendlist.get(key).getCount()+"messages\t\t " + sendlist.get(key).getNumbytes() +"Bytes" + "\n";
         }
         result += "\nReceived\n";
         for(String key : receivelist.keySet()){
-            result += key + "\t" + receivelist.get(key).getCount()+"messages " + sendlist.get(key).getNumbytes() +"Bytes" + "\n";
+            result += key + "\t\t" + receivelist.get(key).getCount()+"messages\t\t " + sendlist.get(key).getNumbytes() +"Bytes" + "\n";
         }
         return result + log;
     }

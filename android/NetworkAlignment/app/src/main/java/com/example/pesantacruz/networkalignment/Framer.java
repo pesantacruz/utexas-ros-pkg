@@ -16,15 +16,15 @@ public class Framer {
     //original source
     //hop count
     //message
-    public void frameMsg(Socket clientSocket, String message,String source, String destination, int count)throws IOException{
+    public static void frameMsg(Socket clientSocket, String message,byte[] source, byte[] destination, int count)throws IOException{
         InputStream in = clientSocket.getInputStream();
         OutputStream out = clientSocket.getOutputStream();
         DataInputStream dis = new DataInputStream(in);
         DataOutputStream dos = new DataOutputStream(out);
 
         dos.writeInt(message.length());
-        dos.writeBytes(destination);
-        dos.writeBytes(source);
+        dos.write(destination);
+        dos.write(source);
         dos.writeInt(count);
         dos.writeBytes(message);
         dos.flush();
