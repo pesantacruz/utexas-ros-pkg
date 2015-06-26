@@ -23,6 +23,27 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
 
+<Button
+        android:id="@+id/neighbors"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="onClick_Search"
+        android:text="Check for Neighbors"/>
+
+    <TextView
+        android:id="@+id/searchtext"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Searching..."
+        android:paddingLeft="120px"/>
+
+    <Spinner
+        android:id="@+id/ip_spinner"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:spinnerMode="dropdown"/>
+
+
     <EditText
         android:id="@+id/my_port_text"
         android:hint="@string/my_port_hint"
