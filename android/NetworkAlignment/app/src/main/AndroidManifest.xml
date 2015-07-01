@@ -6,8 +6,8 @@
     </uses-permission>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" >
     </uses-permission>
-
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" > </uses-permission>
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" >
+    </uses-permission>
 
     <application
         android:allowBackup="true"
@@ -30,6 +30,10 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.pesantacruz.networkalignment.MainActivity" />
+        </activity>
+        <activity
+            android:name=".MainActivity2"
+            android:label="@string/title_activity_main_activity2" >
         </activity>
     </application>
 
