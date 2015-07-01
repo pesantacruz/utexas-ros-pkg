@@ -60,13 +60,6 @@
         android:layout_marginLeft="10dp"
         android:layout_marginTop="5dp" />
 
-    <TextView
-        android:text="Searching..."
-        android:id="@+id/searchtext"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:paddingLeft="55dp"/>
-
     <Spinner
         android:id="@+id/ip_spinner"
         android:layout_width="fill_parent"
@@ -91,12 +84,29 @@
         android:spinnerMode="dropdown" />
 
     <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="onClick_Multisend"
+        android:text="x100"
+        android:id="@+id/multisend"
+        android:layout_gravity="right"
+        android:layout_marginRight="100dp"/>
+
+    <Button
         android:text="Send"
         android:onClick="onClick_Send"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="10dp"
-        android:layout_marginTop="10dp" />
+        android:layout_marginTop="-47dp" />
+
+    <TextView
+        android:text="Searching..."
+        android:id="@+id/searchtext"
+        android:layout_width="0dp"
+        android:layout_height="44dp"
+        android:paddingLeft="55dp"
+         />
 
     <TextView
         android:id="@+id/texttoscreen"

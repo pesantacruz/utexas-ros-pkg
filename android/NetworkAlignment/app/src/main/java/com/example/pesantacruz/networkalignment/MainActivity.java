@@ -206,6 +206,18 @@ public class MainActivity extends ActionBarActivity {
         }
     }
 
+    public void onClick_Multisend(View v){
+        try {
+            System.out.println("Button Pressed...");
+            TARGET_SERVERPORT = Integer.parseInt(target_port_text.getText().toString());
+            for(int i = 0; i < 100; i++) {
+                new Thread(new ClientThread()).start();
+            }
+        } catch (Exception e) {
+            //e.printStackTrace();
+        }
+    }
+
     //Searching for Neighbors Button Press
     public void onClick_Search(View view) {
         //Displays Searching... message
