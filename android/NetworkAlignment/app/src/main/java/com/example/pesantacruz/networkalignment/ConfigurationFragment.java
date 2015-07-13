@@ -6,6 +6,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.os.Handler;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -94,6 +96,7 @@ public class ConfigurationFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setRetainInstance(true);
         if (getArguments() != null) {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
@@ -279,6 +282,14 @@ public class ConfigurationFragment extends Fragment {
         public byte[] handleClient(Socket incomingSocket) throws IOException {
             message = "";
             Decoder decoder = new Decoder(incomingSocket, loggingManager);
+            final MainActivity2 act = (MainActivity2) getActivity();
+            act.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    // This code will always run on the UI thread, therefore is safe to modify UI elements.
+                    act.lfrag.displayLog.setText(loggingManager.getLog());
+                }
+            });
             message += decoder.message;
 
             System.out.println("Message Received..." + message);
@@ -346,9 +357,16 @@ public class ConfigurationFragment extends Fragment {
             destination[0] = d[2];
             destination[1] = d[3];
 
-            Framer.frameMsg(clientSocket, message, source, destination, 0);
+            Framer.frameMsg(clientSocket, message, source, destination, 1);
             loggingManager.sendTo(clientSocket.getInetAddress().getHostAddress(), message.length());
-
+            final MainActivity2 act = (MainActivity2) getActivity();
+            act.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    // This code will always run on the UI thread, therefore is safe to modify UI elements.
+                    act.lfrag.displayLog.setText(loggingManager.getLog());
+                }
+            });
         }
     }
 

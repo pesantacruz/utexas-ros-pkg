@@ -48,9 +48,15 @@ public class LoggingManager {
         }
         result += "\nReceived\n";
         for(String key : receivelist.keySet()){
-            result += key + "\t\t" + receivelist.get(key).getCount()+"messages\t\t " + sendlist.get(key).getNumbytes() +"Bytes" + "\n";
+            result += key + "\t\t" + receivelist.get(key).getCount()+"messages\t\t " + receivelist.get(key).getNumbytes() +"Bytes" + "\n";
         }
         return result + log;
+    }
+    public String getSLog(){
+        return log;
+    }
+    public void setLog(String s){
+        log = s;
     }
 
     public class Stat{
