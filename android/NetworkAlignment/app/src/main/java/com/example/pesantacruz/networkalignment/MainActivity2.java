@@ -37,6 +37,7 @@ public class MainActivity2 extends ActionBarActivity implements ActionBar.TabLis
     ViewPager mViewPager;
     ConfigurationFragment cfrag;
     LogFragment lfrag;
+    MessagesFragment mfrag;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,7 +98,8 @@ public class MainActivity2 extends ActionBarActivity implements ActionBar.TabLis
                     return cfrag;
 
                 case 1:
-                    return PlaceholderFragment.newInstance(position + 1);
+                    mfrag = MessagesFragment.newInstance();
+                    return mfrag;
                 case 2:
                     lfrag = LogFragment.newInstance();
                     return lfrag;
@@ -175,14 +177,14 @@ public class MainActivity2 extends ActionBarActivity implements ActionBar.TabLis
     }
 
     //Start Server Button
-    public void onClick_Start(View view) {
-        cfrag.onClick_Start(view);
-    }
-    //Button Press
+    public void onClick_Start(View view) { cfrag.onClick_Start(view); }
+
+    //Send Button Press
     public void onClick_Send(View view) {
         cfrag.onClick_Send(view);
     }
 
+    //Multisend Button Press
     public void onClick_Multisend(View v){
        cfrag.onClick_Multisend(v);
     }

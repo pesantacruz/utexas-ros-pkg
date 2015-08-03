@@ -1,13 +1,8 @@
 package com.example.pesantacruz.networkalignment;
 
-import android.app.Activity;
-import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.os.Handler;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -23,6 +18,7 @@ import android.widget.TextView;
 import java.io.IOException;
 import java.net.Inet4Address;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -49,6 +45,7 @@ public class ConfigurationFragment extends Fragment {
 
     public int SERVERPORT;
     public int TARGET_SERVERPORT;
+    public String SENDING_IP;
     public String TARGET_SERVER_IP;
 
 
@@ -126,7 +123,7 @@ public class ConfigurationFragment extends Fragment {
         displaySearchMessage = (TextView) view.findViewById(R.id.searchtext);
         displaySearchMessage.setVisibility(View.GONE);
         displayRecMessage = (TextView) view.findViewById(R.id.texttoscreen);
-        displayRecMessage.setVisibility(View.GONE);
+        //displayRecMessage.setVisibility(View.GONE);
         neighbors = (Button) view.findViewById(R.id.neighbors);
         updateConversationHandler = new Handler();
         loggingManager = new LoggingManager();
@@ -143,7 +140,7 @@ public class ConfigurationFragment extends Fragment {
                     if (!inetAddress.isLoopbackAddress()) {
                         //Allows for only IPv4 addresses
                         if (inetAddress instanceof Inet4Address) {
-                            String ip = inetAddress.getHostAddress().toString();
+                            String ip = inetAddress.getHostAddress();
                             ips.add(ip);
                         }
 
@@ -155,35 +152,45 @@ public class ConfigurationFragment extends Fragment {
             Log.e("Error", obj.toString());
         }
 
-        //Create Spinner
-        spinner = (Spinner) view.findViewById(R.id.ip_spinner);
-        //Create an ArrayAdapter using a default spinner layout and an Arraylist
-        ArrayAdapter myAdapter = new ArrayAdapter<String>(this.getActivity(), android.R.layout.simple_spinner_item, ips) {
-            //Allows 'Please Select...' text to appear
+        //Create Multiple Selection Spinner
+        MultipleSelectionSpinner.MultiSpinnerListener listener = new MultipleSelectionSpinner.MultiSpinnerListener() {
             @Override
-            public View getDropDownView(int position, View convertView, ViewGroup parent) {
-                View v = null;
+            public void onItemsSelected(boolean[] selected) {
 
-                //If this is the initial dummy entry, make it hidden
-                if (position == 0) {
-                    TextView tv = new TextView(getContext());
-                    tv.setHeight(0);
-                    tv.setVisibility(View.GONE);
-                    v = tv;
-                } else {
-                    //Pass convertView as null to prevent reuse of special case views
-                    v = super.getDropDownView(position, null, parent);
-                }
-
-                //Hide scroll bar because it appears sometimes unnecessarily, this does not prevent scrolling
-                parent.setVerticalScrollBarEnabled(false);
-                return v;
             }
         };
-        //Specify layout to use when list of choices appears
-        myAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        //Apply adapter to spinner
-        spinner.setAdapter(myAdapter);
+        MultipleSelectionSpinner multiSpinner = (MultipleSelectionSpinner) view.findViewById(R.id.multi_spinner);
+        multiSpinner.setItems(ips, "Please Select an IP Address...", listener);
+
+//        //Create Spinner
+//        spinner = (Spinner) view.findViewById(R.id.ip_spinner);
+//        //Create an ArrayAdapter using a default spinner layout and an Arraylist
+//        ArrayAdapter myAdapter = new ArrayAdapter<String>(this.getActivity(), android.R.layout.simple_spinner_item, ips) {
+//            //Allows 'Please Select...' text to appear
+//            @Override
+//            public View getDropDownView(int position, View convertView, ViewGroup parent) {
+//                View v = null;
+//
+//                //If this is the initial dummy entry, make it hidden
+//                if (position == 0) {
+//                    TextView tv = new TextView(getContext());
+//                    tv.setHeight(0);
+//                    tv.setVisibility(View.GONE);
+//                    v = tv;
+//                } else {
+//                    //Pass convertView as null to prevent reuse of special case views
+//                    v = super.getDropDownView(position, null, parent);
+//                }
+//
+//                //Hide scroll bar because it appears sometimes unnecessarily, this does not prevent scrolling
+//                parent.setVerticalScrollBarEnabled(false);
+//                return v;
+//            }
+//        };
+//        //Specify layout to use when list of choices appears
+//        myAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+//        //Apply adapter to spinner
+//        spinner.setAdapter(myAdapter);
 
         System.out.println("Server initialized...");
 
@@ -251,6 +258,11 @@ public class ConfigurationFragment extends Fragment {
                 try {
                     System.out.println("Trying to Accept...");
                     Socket incomingSocket = serverSocket.accept();    // This will block until there is an incoming socket
+
+                    InetSocketAddress whatever = (InetSocketAddress) incomingSocket.getRemoteSocketAddress();
+                    SENDING_IP = whatever.getHostName();
+
+                    System.out.println("Sending IP = " + SENDING_IP);
 
                     Thread communicationThread = new Thread(new CommunicationThread(incomingSocket));
                     communicationThread.start();
@@ -321,7 +333,14 @@ public class ConfigurationFragment extends Fragment {
 
         @Override
         public void run() {
-            displayRecMessage.setText(displayRecMessage.getText().toString() + "Client Says: " + recDataString + "\n");
+            final MainActivity2 act = (MainActivity2) getActivity();
+            act.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    // This code will always run on the UI thread, therefore is safe to modify UI elements.
+                    act.mfrag.displayMessage.setText(displayRecMessage.getText().toString() + "Client " + SENDING_IP + " says: " + recDataString + "\n");
+                }
+            });
         }
     }
 
@@ -378,13 +397,14 @@ public class ConfigurationFragment extends Fragment {
             InetAddress inetAddress = null;
             String ip = "169.87.149.";
             //Checks 169.87.149.1 - 169.87.149.254
-            for (int i = 165; i < 169; i++) {
+            for (int i = 1; i < 255; i++) {
                 try {
                     inetAddress = InetAddress.getByName(ip + String.valueOf(i));
                     System.out.println("Trying: " + ip + i);
                     //Add IP to ArrayList if reachable and not already present
-                    if (inetAddress.isReachable(1000) && (!ips.contains(inetAddress.getHostName()))) {
-                        ips.add(inetAddress.getHostName());
+                    if (inetAddress.isReachable(1000) && (!ips.contains(inetAddress.toString().substring(1)))) {
+                        System.out.println("Found " + ip + i + " as neighbor");
+                        ips.add(inetAddress.toString().substring(1));
                     }
                 } catch (UnknownHostException e) {
                     e.printStackTrace();
